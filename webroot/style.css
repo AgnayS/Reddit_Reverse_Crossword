@@ -1,0 +1,48 @@
+/* General styles */
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  margin: 20px 0;
+}
+
+/* Grid styles */
+#grid {
+  display: grid;
+  grid-template-columns: repeat(5, 50px); /* Adjust columns for grid size */
+  grid-template-rows: repeat(5, 50px);
+  gap: 2px;
+  justify-content: center;
+  margin: 20px auto;
+}
+
+/* Cell styles */
+.cell {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid black;
+  background-color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Blacked-out cell styles */
+.blackout {
+  background-color: black;
+  color: white;
+}
+
+/* Button styles */
+#submit-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
