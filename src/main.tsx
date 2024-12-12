@@ -48,7 +48,7 @@ Devvit.addCustomPostType({
           >
             <webview
               id="darkword"
-              url="page.html"
+              url="index.html"
               grow
             />
           </vstack>
