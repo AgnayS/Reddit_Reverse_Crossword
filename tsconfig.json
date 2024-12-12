@@ -1,6 +1,7 @@
 {
   "extends": "@devvit/public-api/devvit.tsconfig.json",
   "compilerOptions": {
+    "jsx": "react",
     "noEmit": true
   },
   "include": ["./src/**/*"]

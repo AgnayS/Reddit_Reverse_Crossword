@@ -2,14 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Darkword</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DarkWord</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Darkword</h1>
-    <div id="grid"></div>
-    <button id="submit-btn">Submit</button>
+    <div class="game-container">
+        <h1>DarkWord</h1>
+        <p class="subtitle">Find the hidden crossword by blacking out extra letters!</p>
+
+        <div class="puzzle-container">
+            <div class="clues-section" id="clues-list">
+                <!-- Clues will be inserted by JavaScript -->
+            </div>
+
+            <div id="grid"></div>
+        </div>
+        
+        <div class="controls">
+            <button id="submit-btn" class="primary-btn">Check Solution</button>
+            <button id="reset-btn" class="secondary-btn">Reset Grid</button>
+        </div>
+
+        <div id="message" class="message"></div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
