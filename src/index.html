@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DarkWord</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <div class="header-left">
+                <h1>DarkWord</h1>
+                <div id="theme-display" class="theme-display"></div>
+            </div>
+            <div id="timer" class="timer">00:00</div>
+        </div>
+
+        <div class="main-content">
+            <div class="grid-section">
+                <div id="grid" class="grid">
+                    <!-- Grid will be populated by JavaScript -->
+                </div>
+                <div id="controls" class="controls">
+                    <button id="submit-btn" class="primary-btn">Check Solution</button>
+                    <button id="reset-btn" class="secondary-btn">Reset Grid</button>
+                    <button id="peek-btn" class="secondary-btn">
+                        Peek (<span id="peeks-left">3</span>)
+                    </button>
+                </div>
+                <div id="message" class="message"></div>
+            </div>
+
+            <div id="clues-section" class="clues-section">
+                <h3>Clues</h3>
+                <div id="clues-list" class="clues-list">
+                    <!-- Clues will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="js/runner.tsx"></script>
+</body>
+</html>

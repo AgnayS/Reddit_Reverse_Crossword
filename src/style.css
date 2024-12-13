@@ -1,0 +1,209 @@
+:root {
+    --primary-color: #0079D3;
+    --secondary-color: #1a1a1a;
+    --background-color: #f0f2f5;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    max-width: 1000px;
+    max-height: 700px;
+    overflow: hidden;
+}
+
+.game-container {
+    width: 100%;
+    height: 100%;
+    max-width: 1000px;
+    max-height: 700px;
+    background: white;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header-left h1 {
+    color: var(--primary-color);
+    margin: 0;
+    font-size: 2em;
+}
+
+.theme-display {
+    color: #666;
+    font-size: 1.1em;
+    margin-top: 5px;
+}
+
+.timer {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--primary-color);
+    padding: 10px 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.main-content {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+    height: calc(100% - 100px);
+}
+
+.grid-section {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(7, 50px);
+    grid-template-rows: repeat(7, 50px);
+    gap: 2px;
+    padding: 10px;
+    background: #f0f0f0;
+    border-radius: 8px;
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    background-color: white;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.cell:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.cell.blackout {
+    background-color: var(--secondary-color);
+    color: var(--secondary-color);
+    transform: scale(0.95);
+}
+
+.cell.peek {
+    animation: peek-pulse 1s infinite;
+}
+
+@keyframes peek-pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+button {
+    padding: 12px 24px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.primary-btn {
+    background: var(--primary-color);
+    color: white;
+}
+
+.secondary-btn {
+    background: var(--secondary-color);
+    color: white;
+}
+
+.clues-section {
+    flex: 1;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-y: auto;
+    max-width: 300px;
+}
+
+.clues-section h3 {
+    color: var(--primary-color);
+    margin: 0 0 15px 0;
+}
+
+.clue-item {
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 4px;
+    background: white;
+    transition: background-color 0.2s;
+}
+
+.clue-item:hover {
+    background-color: #e9ecef;
+}
+
+.clue-item.solved {
+    color: var(--success-color);
+    font-weight: 500;
+}
+
+.message {
+    padding: 10px 20px;
+    border-radius: 4px;
+    text-align: center;
+    display: none;
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+.message.success {
+    display: block;
+    background: #d4edda;
+    color: var(--success-color);
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    display: block;
+    background: #f8d7da;
+    color: var(--error-color);
+    border: 1px solid #f5c6cb;
+}
