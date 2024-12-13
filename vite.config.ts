@@ -1,5 +1,9 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import dotenv from 'dotenv';
+
+// Load environment variables from the .env file
+dotenv.config();
 
 export default defineConfig({
   root: './src', // Set the root directory to "src"
@@ -12,5 +16,8 @@ export default defineConfig({
   },
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx'], // Handle TypeScript and JavaScript files
+  },
+  define: {
+    'process.env': process.env, // Expose environment variables to the client
   },
 });

@@ -3,8 +3,8 @@ import { Grid } from './Grid.tsx';
 import { Timer } from './Timer.tsx';
 import { ClueManager } from '../ui/ClueManager.tsx';
 import { MessageHandler } from '../ui/MessageHandler.tsx';
-import { PuzzleGenerator, PuzzleConfig } from '../utils/PuzzleGenerator.tsx';
-import { getDailyTheme } from '../utils/ThemeManager.tsx';
+import { PuzzleGenerator } from '../utils/PuzzleGenerator.tsx';
+import { fetchWordsAndClues } from '../utils/WordFetcher.tsx';
 import type { Theme, UIElements } from '../utils/types.tsx';
 
 export class Game {
@@ -12,10 +12,7 @@ export class Game {
     private timer: Timer;
     private clueManager: ClueManager;
     private messageHandler: MessageHandler;
-    private theme: Theme;
-    private peeksLeft: number;
-    private isPeeking: boolean;
-    private peekTimeout: number | null;
+    private theme: Theme | null = null;
     private ui: UIElements;
 
     constructor() {
@@ -24,10 +21,6 @@ export class Game {
         this.timer = new Timer();
         this.clueManager = new ClueManager();
         this.messageHandler = new MessageHandler();
-        this.theme = getDailyTheme();
-        this.peeksLeft = 3;
-        this.isPeeking = false;
-        this.peekTimeout = null;
 
         // Initialize UI elements
         this.ui = {
@@ -35,7 +28,6 @@ export class Game {
             timer: document.querySelector<HTMLDivElement>('#timer'),
             cluesList: document.querySelector<HTMLDivElement>('#clues-list'),
             message: document.querySelector<HTMLDivElement>('#message'),
-            peeksLeftSpan: document.querySelector<HTMLSpanElement>('#peeks-left'),
             themeDisplay: document.querySelector<HTMLDivElement>('#theme-display'),
             submitBtn: document.querySelector<HTMLButtonElement>('#submit-btn'),
             resetBtn: document.querySelector<HTMLButtonElement>('#reset-btn'),
@@ -49,50 +41,59 @@ export class Game {
         }
     }
 
-    private init(): void {
+    private async init(): Promise<void> {
         console.log('Initializing Game Setup...');
+        await this.fetchTheme();
         this.setupGame();
         this.setupControls();
     }
 
-    /**
-     * Initializes the puzzle by generating a new one and setting it up on the grid.
-     * This method can be called both during initial setup and during reset without affecting the timer.
-     */
-    private initializePuzzle(): void {
-        const config = new PuzzleConfig(7, 7);
-        const generator = new PuzzleGenerator(config);
-        const puzzle = generator.generate(this.theme.words);
+    private async fetchTheme(): Promise<void> {
+        try {
+            const response = await fetchWordsAndClues();
+            this.theme = {
+                name: response.theme,
+                words: response.words,
+                clues: response.clues,
+            };
+            console.log('Fetched Theme:', this.theme);
+        } catch (error) {
+            console.error('Failed to fetch theme:', error);
+            this.messageHandler.showError('Error fetching theme. Please refresh the page.');
+        }
+    }
 
+    private setupGame(): void {
+        if (!this.theme) return;
+
+        const generator = new PuzzleGenerator(7,7);
+        const puzzle = generator.generate(this.theme.words);
         console.log('Generated Puzzle:', puzzle);
 
         this.grid.initialize(puzzle.grid);
         this.grid.setValidCells(puzzle.words);
         this.clueManager.initialize(puzzle.words, this.theme.clues);
-    }
-
-    private setupGame(): void {
-        console.log('Setting up game with theme:', this.theme);
-
-        // Initialize the puzzle
-        this.initializePuzzle();
 
         if (this.ui.themeDisplay) {
             this.ui.themeDisplay.textContent = `Today's theme: ${this.theme.name}`;
         }
 
-        // Start the timer once at the beginning
+        this.grid.renderGrid(this.ui.grid);
         this.timer.start();
-
-        if (this.ui.peeksLeftSpan) {
-            this.ui.peeksLeftSpan.textContent = this.peeksLeft.toString();
-        }
-
-        console.log('Game setup complete.');
     }
 
     private setupControls(): void {
-        console.log('Setting up controls...');
+        if (this.ui.submitBtn) {
+            this.ui.submitBtn.addEventListener('click', () => this.checkSolution());
+        }
+
+        if (this.ui.resetBtn) {
+            this.ui.resetBtn.addEventListener('click', () => this.reset());
+        }
+
+        if (this.ui.peekBtn) {
+            this.ui.peekBtn.addEventListener('click', () => this.handlePeek());
+        }
 
         if (this.ui.grid) {
             this.ui.grid.addEventListener('click', (e: MouseEvent) => {
@@ -106,91 +107,70 @@ export class Game {
                 }
             });
         }
-
-        if (this.ui.submitBtn) {
-            this.ui.submitBtn.addEventListener('click', () => this.checkSolution());
-        }
-
-        if (this.ui.resetBtn) {
-            this.ui.resetBtn.addEventListener('click', () => this.reset());
-        }
-
-        if (this.ui.peekBtn) {
-            this.ui.peekBtn.addEventListener('click', () => this.handlePeek());
-        }
-
-        console.log('Controls setup complete.');
     }
 
     private reset(): void {
-        console.log('Resetting game grid...');
         this.grid.reset();
         this.clueManager.reset();
         this.messageHandler.clear();
 
-        // Reinitialize the puzzle (but do NOT restart or reset the timer)
-        this.initializePuzzle();
-
-        console.log('Grid reset complete, puzzle reinitialized.');
+        if (this.theme) {
+            const generator = new PuzzleGenerator(7,7);
+            const puzzle = generator.generate(this.theme.words);
+            this.grid.initialize(puzzle.grid);
+            this.grid.setValidCells(puzzle.words);
+            this.clueManager.initialize(puzzle.words, this.theme.clues);
+            this.grid.renderGrid(this.ui.grid);
+        }
     }
 
     private checkSolution(): void {
-        console.log('Checking solution...');
         const isCorrect = this.grid.checkSolution();
-
         if (isCorrect) {
-            console.log('Solution is correct!');
             this.messageHandler.showSuccess();
             this.clueManager.markAllSolved();
             this.timer.stop();
         } else {
-            console.log('Solution is incorrect.');
             this.messageHandler.showError();
         }
     }
 
     private handlePeek(): void {
-        if (this.peeksLeft <= 0 || this.isPeeking) return;
-
-        this.isPeeking = true;
-        this.peeksLeft--;
-
-        if (this.ui.peeksLeftSpan) {
-            this.ui.peeksLeftSpan.textContent = this.peeksLeft.toString();
-        }
-
-        if (this.ui.peekBtn) {
-            this.ui.peekBtn.disabled = this.peeksLeft <= 0;
-        }
-
-        const allCells = [...Array(7)].flatMap((_, row) =>
-            [...Array(7)].map((_, col) => ({ row, col }))
-        );
-
-        console.log('All cells for peeking:', allCells);
-
-        // Shuffle cells
-        for (let i = allCells.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [allCells[i], allCells[j]] = [allCells[j], allCells[i]];
-        }
-
-        // Show hints for 3 random cells
         const { validCells } = this.grid.getState();
-        allCells.slice(0, 3).forEach(({ row, col }) => {
-            const shouldBeBlackedOut = !validCells.has(`${col},${row}`);
-            this.grid.showPeek(row, col, !shouldBeBlackedOut);
+        const container = document.querySelector<HTMLDivElement>('#grid');
+        if (!container) return;
+
+        // Collect all invalid cells that are not blacked out
+        const invalidCells: {x:number, y:number}[] = [];
+        for (let y = 0; y < 7; y++) {
+            for (let x = 0; x < 7; x++) {
+                const key = `${x},${y}`;
+                if (!validCells.has(key)) {
+                    // Check if this cell is not blacked out
+                    const cell = container.querySelector<HTMLDivElement>(`.cell[data-row="${y}"][data-col="${x}"]`);
+                    if (cell && !cell.classList.contains('blackout')) {
+                        invalidCells.push({x,y});
+                    }
+                }
+            }
+        }
+
+        if (invalidCells.length === 0) return;
+
+        // Shuffle invalid cells
+        for (let i = invalidCells.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [invalidCells[i], invalidCells[j]] = [invalidCells[j], invalidCells[i]];
+        }
+
+        // Pick up to 3 cells
+        const peekCells = invalidCells.slice(0, 3);
+        peekCells.forEach(({x,y}) => {
+            this.grid.showPeekBad(y, x); // highlight in red
         });
 
-        if (this.peekTimeout) {
-            window.clearTimeout(this.peekTimeout);
-        }
-
-        this.peekTimeout = window.setTimeout(() => {
-            this.grid.hidePeek();
-            this.isPeeking = false;
+        setTimeout(() => {
+            this.grid.hidePeekBad();
         }, 2000);
-
-        console.log('Peek handled.');
     }
 }

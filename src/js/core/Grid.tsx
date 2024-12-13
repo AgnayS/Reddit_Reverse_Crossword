@@ -1,91 +1,121 @@
 import React from 'react';
-import { GameState, WordInfo } from '../utils/types.tsx';
+import { WordInfo } from '../utils/types.tsx';
+
+interface GridState {
+    validCells: Set<string>;
+    grid: string[][];
+}
 
 export class Grid {
-    private element: HTMLDivElement | null;
-    private blackedOutCells: boolean[][];
+    private size: number;
+    private cells: string[][];
     private validCells: Set<string>;
 
-    constructor(private size: number = 7) {
-        this.element = document.querySelector<HTMLDivElement>('#grid');
-        this.blackedOutCells = Array(size).fill(null).map(() => Array(size).fill(false));
+    constructor(size: number) {
+        this.size = size;
+        this.cells = Array.from({ length: size }, () => Array(size).fill(''));
         this.validCells = new Set();
     }
 
-    public initialize(puzzleGrid: string[][]): void {
-        if (!this.element) return;
-
-        this.element.innerHTML = '';
-        puzzleGrid.forEach((row, rowIndex) => {
-            row.forEach((letter, colIndex) => {
-                const cell = document.createElement('div') as HTMLDivElement;
-                cell.className = 'cell';
-                cell.textContent = letter;
-                cell.dataset.row = rowIndex.toString();
-                cell.dataset.col = colIndex.toString();
-                this.element?.appendChild(cell);
-            });
-        });
+    public initialize(grid: string[][]): void {
+        if (grid.length !== this.size || grid.some(row => row.length !== this.size)) {
+            throw new Error(`Grid size mismatch: expected ${this.size}x${this.size}`);
+        }
+        this.cells = grid.map(row => [...row]);
+        console.log('Grid initialized:', this.cells);
     }
 
     public setValidCells(words: WordInfo[]): void {
         this.validCells.clear();
-        words.forEach(wordInfo => {
+        for (const wordInfo of words) {
             const { word, startX, startY, isVertical } = wordInfo;
             for (let i = 0; i < word.length; i++) {
-                const x = isVertical ? startX : startX + i;
-                const y = isVertical ? startY + i : startY;
+                const x = startX + (isVertical ? 0 : i);
+                const y = startY + (isVertical ? i : 0);
                 this.validCells.add(`${x},${y}`);
             }
-        });
+        }
+        console.log('Valid cells set:', this.cells);
     }
 
-    public toggleCell(cell: HTMLDivElement, row: number, col: number): void {
-        const isBlackingOut = !cell.classList.contains('blackout');
-        cell.classList.toggle('blackout');
-        this.blackedOutCells[row][col] = isBlackingOut;
+    public renderGrid(container: HTMLDivElement | null): void {
+        if (!container) return;
+        container.innerHTML = '';
+
+        for (let row = 0; row < this.size; row++) {
+            for (let col = 0; col < this.size; col++) {
+                const cellDiv = document.createElement('div');
+                cellDiv.classList.add('cell');
+                cellDiv.dataset.row = row.toString();
+                cellDiv.dataset.col = col.toString();
+                cellDiv.textContent = (this.cells[row][col] || '').toUpperCase();
+                container.appendChild(cellDiv);
+            }
+        }
     }
 
-    public reset(): void {
-        this.blackedOutCells = Array(this.size).fill(null).map(() => Array(this.size).fill(false));
-        document.querySelectorAll<HTMLDivElement>('.cell').forEach(cell => {
-            cell.classList.remove('blackout');
-            cell.style.backgroundColor = 'white';
-        });
+    public clearGrid(): void {
+        this.cells = Array.from({ length: this.size }, () => Array(this.size).fill(''));
+        console.log('Grid cleared.');
+    }
+
+    public toggleCell(cellElement: HTMLDivElement, row: number, col: number): void {
+        cellElement.classList.toggle('blackout');
     }
 
     public checkSolution(): boolean {
+        const container = document.querySelector<HTMLDivElement>('#grid');
+        if (!container) return false;
+
         for (let row = 0; row < this.size; row++) {
             for (let col = 0; col < this.size; col++) {
-                const isValidCell = this.validCells.has(`${col},${row}`);
-                const isBlackedOut = this.blackedOutCells[row][col];
-                if (isValidCell === isBlackedOut) {
-                    return false;
-                }
+                const cell = container.querySelector<HTMLDivElement>(`.cell[data-row="${row}"][data-col="${col}"]`);
+                if (!cell) continue;
+
+                const isBlackout = cell.classList.contains('blackout');
+                const key = `${col},${row}`;
+                const shouldBeValid = this.validCells.has(key);
+
+                if (shouldBeValid && isBlackout) return false;
+                if (!shouldBeValid && !isBlackout) return false;
             }
         }
         return true;
     }
 
-    public showPeek(row: number, col: number, isCorrectCell: boolean): void {
-        const cell = document.querySelector<HTMLDivElement>(`[data-row="${row}"][data-col="${col}"]`);
-        if (cell) {
-            cell.classList.add('peek');
-            cell.style.backgroundColor = isCorrectCell ? '#90EE90' : '#ffd700';
+    public reset(): void {
+        const container = document.querySelector<HTMLDivElement>('#grid');
+        if (container) {
+            container.querySelectorAll('.cell.blackout').forEach(cell => {
+                cell.classList.remove('blackout');
+            });
         }
     }
 
-    public hidePeek(): void {
-        document.querySelectorAll<HTMLDivElement>('.cell.peek').forEach(cell => {
-            cell.classList.remove('peek');
-            cell.style.backgroundColor = cell.classList.contains('blackout') ? '#1a1a1a' : 'white';
+    /**
+     * showPeekBad highlights a cell in red (using .peek-bad) to indicate it needs to be blacked out.
+     */
+    public showPeekBad(row: number, col: number): void {
+        const container = document.querySelector<HTMLDivElement>('#grid');
+        if (!container) return;
+        const cell = container.querySelector<HTMLDivElement>(`.cell[data-row="${row}"][data-col="${col}"]`);
+        if (cell) {
+            cell.classList.add('peek-bad');
+        }
+    }
+
+    /**
+     * hidePeekBad removes the red highlight from all peeked cells.
+     */
+    public hidePeekBad(): void {
+        const container = document.querySelector<HTMLDivElement>('#grid');
+        if (!container) return;
+        container.querySelectorAll('.cell.peek-bad').forEach(cell => {
+            cell.classList.remove('peek-bad');
         });
     }
 
-    public getState(): Pick<GameState, 'blackedOutCells' | 'validCells'> {
-        return {
-            blackedOutCells: this.blackedOutCells,
-            validCells: this.validCells
-        };
+    public getState(): GridState {
+        return { validCells: this.validCells, grid: this.cells };
     }
 }
