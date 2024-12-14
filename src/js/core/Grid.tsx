@@ -1,4 +1,3 @@
-import React from 'react';
 import { WordInfo } from '../utils/types.tsx';
 
 interface GridState {
@@ -18,11 +17,7 @@ export class Grid {
     }
 
     public initialize(grid: string[][]): void {
-        if (grid.length !== this.size || grid.some(row => row.length !== this.size)) {
-            throw new Error(`Grid size mismatch: expected ${this.size}x${this.size}`);
-        }
         this.cells = grid.map(row => [...row]);
-        console.log('Grid initialized:', this.cells);
     }
 
     public setValidCells(words: WordInfo[]): void {
@@ -30,37 +25,60 @@ export class Grid {
         for (const wordInfo of words) {
             const { word, startX, startY, isVertical } = wordInfo;
             for (let i = 0; i < word.length; i++) {
-                const x = startX + (isVertical ? 0 : i);
-                const y = startY + (isVertical ? i : 0);
+                const x = isVertical ? startX : startX + i;
+                const y = isVertical ? startY + i : startY;
                 this.validCells.add(`${x},${y}`);
             }
         }
-        console.log('Valid cells set:', this.cells);
     }
 
-    public renderGrid(container: HTMLDivElement | null): void {
+    public clearBlackouts(): void {
+        const container = document.querySelector<HTMLDivElement>('#grid');
         if (!container) return;
-        container.innerHTML = '';
 
-        for (let row = 0; row < this.size; row++) {
-            for (let col = 0; col < this.size; col++) {
-                const cellDiv = document.createElement('div');
-                cellDiv.classList.add('cell');
-                cellDiv.dataset.row = row.toString();
-                cellDiv.dataset.col = col.toString();
-                cellDiv.textContent = (this.cells[row][col] || '').toUpperCase();
-                container.appendChild(cellDiv);
-            }
+        container.querySelectorAll('.cell').forEach(cell => {
+            cell.classList.remove('blackout', 'peek-hint', 'solution-correct', 'solution-incorrect');
+        });
+    }
+
+    public showPeekHint(row: number, col: number): void {
+        const cell = document.querySelector<HTMLDivElement>(
+            `.cell[data-row="${row}"][data-col="${col}"]`
+        );
+        if (cell) {
+            cell.classList.add('peek-hint');
         }
     }
 
-    public clearGrid(): void {
-        this.cells = Array.from({ length: this.size }, () => Array(this.size).fill(''));
-        console.log('Grid cleared.');
+    public clearPeekHints(): void {
+        document.querySelectorAll('.cell.peek-hint').forEach(cell => {
+            cell.classList.remove('peek-hint');
+        });
     }
 
-    public toggleCell(cellElement: HTMLDivElement, row: number, col: number): void {
-        cellElement.classList.toggle('blackout');
+    public revealSolution(): void {
+        const container = document.querySelector<HTMLDivElement>('#grid');
+        if (!container) return;
+
+        for (let row = 0; row < this.size; row++) {
+            for (let col = 0; col < this.size; col++) {
+                const cell = container.querySelector<HTMLDivElement>(
+                    `.cell[data-row="${row}"][data-col="${col}"]`
+                );
+                if (!cell) continue;
+
+                const isBlackedOut = cell.classList.contains('blackout');
+                const shouldBeBlackedOut = !this.validCells.has(`${col},${row}`);
+
+                if (shouldBeBlackedOut && !isBlackedOut) {
+                    cell.classList.add('solution-incorrect');
+                } else if (!shouldBeBlackedOut && isBlackedOut) {
+                    cell.classList.add('solution-incorrect');
+                } else {
+                    cell.classList.add('solution-correct');
+                }
+            }
+        }
     }
 
     public checkSolution(): boolean {
@@ -69,53 +87,21 @@ export class Grid {
 
         for (let row = 0; row < this.size; row++) {
             for (let col = 0; col < this.size; col++) {
-                const cell = container.querySelector<HTMLDivElement>(`.cell[data-row="${row}"][data-col="${col}"]`);
+                const cell = container.querySelector<HTMLDivElement>(
+                    `.cell[data-row="${row}"][data-col="${col}"]`
+                );
                 if (!cell) continue;
 
-                const isBlackout = cell.classList.contains('blackout');
-                const key = `${col},${row}`;
-                const shouldBeValid = this.validCells.has(key);
+                const isBlackedOut = cell.classList.contains('blackout');
+                const shouldBeBlackedOut = !this.validCells.has(`${col},${row}`);
 
-                if (shouldBeValid && isBlackout) return false;
-                if (!shouldBeValid && !isBlackout) return false;
+                if (isBlackedOut !== shouldBeBlackedOut) return false;
             }
         }
         return true;
     }
 
-    public reset(): void {
-        const container = document.querySelector<HTMLDivElement>('#grid');
-        if (container) {
-            container.querySelectorAll('.cell.blackout').forEach(cell => {
-                cell.classList.remove('blackout');
-            });
-        }
-    }
-
-    /**
-     * showPeekBad highlights a cell in red (using .peek-bad) to indicate it needs to be blacked out.
-     */
-    public showPeekBad(row: number, col: number): void {
-        const container = document.querySelector<HTMLDivElement>('#grid');
-        if (!container) return;
-        const cell = container.querySelector<HTMLDivElement>(`.cell[data-row="${row}"][data-col="${col}"]`);
-        if (cell) {
-            cell.classList.add('peek-bad');
-        }
-    }
-
-    /**
-     * hidePeekBad removes the red highlight from all peeked cells.
-     */
-    public hidePeekBad(): void {
-        const container = document.querySelector<HTMLDivElement>('#grid');
-        if (!container) return;
-        container.querySelectorAll('.cell.peek-bad').forEach(cell => {
-            cell.classList.remove('peek-bad');
-        });
-    }
-
-    public getState(): GridState {
+    public getState(): { validCells: Set<string>; grid: string[][] } {
         return { validCells: this.validCells, grid: this.cells };
     }
 }

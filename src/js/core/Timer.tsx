@@ -1,5 +1,3 @@
-import React from 'react';
-
 export class Timer {
     private element: HTMLElement | null;
     private startTime: number | null;
