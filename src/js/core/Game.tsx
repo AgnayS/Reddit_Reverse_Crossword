@@ -3,10 +3,14 @@ import { PuzzleGenerator } from '../utils/PuzzleGenerator.tsx';
 import type { Theme, WordInfo } from '../utils/types.tsx';
 import { fetchWordsAndClues } from '../utils/WordFetcher.tsx';
 
+// Define the grid size variables here
+const GRID_WIDTH = 7;
+const GRID_HEIGHT = 7;
+
 export class Game {
     private puzzleGrid: string[][] = [];
     private words: WordInfo[] = [];
-    private blackedOutCells: boolean[][] = Array(7).fill().map(() => Array(7).fill(false));
+    private blackedOutCells: boolean[][];
     private validCells: Set<string> = new Set();
     private peeksLeft: number = 3;
     private isPeeking: boolean = false;
@@ -18,6 +22,9 @@ export class Game {
     private peekCooldown: boolean = false;
 
     constructor() {
+        // Initialize blackedOutCells based on grid size
+        this.blackedOutCells = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(false));
+
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.init());
         } else {
@@ -56,7 +63,7 @@ export class Game {
     private startTimer(): void {
         this.startTime = Date.now();
         
-        if (this.timerInterval) {
+        if (this.timerInterval !== null) {
             window.clearInterval(this.timerInterval);
         }
 
@@ -69,7 +76,7 @@ export class Game {
 
     private updateTimerDisplay(): void {
         const timerElement = document.getElementById('timer');
-        if (!timerElement || !this.startTime) return;
+        if (!timerElement || this.startTime === null) return;
 
         const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
         const minutes = Math.floor(elapsed / 60);
@@ -80,7 +87,7 @@ export class Game {
     }
 
     private stopTimer(): void {
-        if (this.timerInterval) {
+        if (this.timerInterval !== null) {
             window.clearInterval(this.timerInterval);
             this.timerInterval = null;
         }
@@ -93,15 +100,15 @@ export class Game {
 
     private setupUIElements(): void {
         const grid = document.getElementById("grid");
-        const submitBtn = document.getElementById("submit-btn");
-        const resetBtn = document.getElementById("reset-btn");
-        const peekBtn = document.getElementById("peek-btn");
+        const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement | null;
+        const resetBtn = document.getElementById("reset-btn") as HTMLButtonElement | null;
+        const peekBtn = document.getElementById("peek-btn") as HTMLButtonElement | null;
         const peeksLeftSpan = document.getElementById("peeks-left");
         const message = document.getElementById("message");
         const themeDisplay = document.getElementById("theme-display");
         const cluesSection = document.getElementById("clues-section");
 
-        if (!grid || !submitBtn || !resetBtn || !peekBtn || !peeksLeftSpan || 
+        if (!grid || !submitBtn || !resetBtn || !peekBtn || !peeksLeftSpan ||
             !message || !themeDisplay || !cluesSection) {
             console.error("Required DOM elements not found");
             return;
@@ -113,31 +120,36 @@ export class Game {
         grid.addEventListener("click", (e) => this.handleCellClick(e));
     }
 
+    /**
+     * This is where we use the defined grid size variables.
+     * We're passing `GRID_WIDTH, GRID_HEIGHT` to the PuzzleGenerator constructor.
+     * Change `GRID_WIDTH` and `GRID_HEIGHT` at the top of the file to alter the puzzle size.
+     */
     private generatePuzzle(): void {
         if (!this.theme) return;
 
         if (!this.initialPuzzle) {
-            const generator = new PuzzleGenerator(7, 7);
+            const generator = new PuzzleGenerator(GRID_WIDTH, GRID_HEIGHT);
             this.initialPuzzle = generator.generate(this.theme.words);
         }
 
         this.puzzleGrid = this.initialPuzzle.grid.map(row => [...row]);
         this.words = [...this.initialPuzzle.words];
         this.validCells = this.getValidCells();
-        this.blackedOutCells = Array(7).fill().map(() => Array(7).fill(false));
+        this.blackedOutCells = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(false));
     }
 
     private getValidCells(): Set<string> {
-        const validCells = new Set<string>();
+        const valid = new Set<string>();
         this.words.forEach(wordInfo => {
             const { word, startX, startY, isVertical } = wordInfo;
             for (let i = 0; i < word.length; i++) {
                 const x = isVertical ? startX : startX + i;
                 const y = isVertical ? startY + i : startY;
-                validCells.add(`${x},${y}`);
+                valid.add(`${x},${y}`);
             }
         });
-        return validCells;
+        return valid;
     }
 
     private renderGame(): void {
@@ -179,10 +191,10 @@ export class Game {
             clueElement.className = "clue-item";
             clueElement.textContent = `• ${clue}`;
             clueElement.dataset.word = wordInfo.word;
-            
+
             clueElement.addEventListener('mouseenter', () => this.highlightWord(wordInfo));
             clueElement.addEventListener('mouseleave', () => this.unhighlightWord(wordInfo));
-            
+
             cluesList.appendChild(clueElement);
         });
     }
@@ -197,9 +209,9 @@ export class Game {
         const cell = e.target as HTMLElement;
         if (!cell.classList.contains("cell")) return;
 
-        const row = parseInt(cell.dataset.row || "0");
-        const col = parseInt(cell.dataset.col || "0");
-        
+        const row = parseInt(cell.dataset.row || "0", 10);
+        const col = parseInt(cell.dataset.col || "0", 10);
+
         this.toggleCell(cell, row, col);
         this.clearMessage();
     }
@@ -211,60 +223,61 @@ export class Game {
 
     private handlePeek(): void {
         if (this.peeksLeft <= 0 || this.isPeeking || this.peekCooldown) return;
-        
+
         this.isPeeking = true;
         this.peeksLeft--;
         this.peekCooldown = true;
         this.updatePeekButton();
-    
-        const incorrectCells = [];
-        for (let row = 0; row < 7; row++) {
-            for (let col = 0; col < 7; col++) {
+
+        const incorrectCells: { row: number, col: number }[] = [];
+        for (let row = 0; row < GRID_HEIGHT; row++) {
+            for (let col = 0; col < GRID_WIDTH; col++) {
                 const shouldBeBlackedOut = !this.validCells.has(`${col},${row}`);
                 if (shouldBeBlackedOut && !this.blackedOutCells[row][col]) {
-                    incorrectCells.push({row, col});
+                    incorrectCells.push({ row, col });
                 }
             }
         }
-    
+
+        // Shuffle incorrect cells
         for (let i = incorrectCells.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [incorrectCells[i], incorrectCells[j]] = [incorrectCells[j], incorrectCells[i]];
         }
-    
+
         const cellsToShow = incorrectCells.slice(0, 3);
-        cellsToShow.forEach(({row, col}) => {
+        cellsToShow.forEach(({ row, col }) => {
             const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`) as HTMLElement;
             if (cell) {
                 cell.classList.add('peek', 'hint-blackout');
             }
         });
-    
+
         if (this.peekTimeout) {
             clearTimeout(this.peekTimeout);
         }
-    
+
         this.peekTimeout = window.setTimeout(() => {
             document.querySelectorAll('.cell.peek').forEach(cell => {
                 cell.classList.remove('peek', 'hint-blackout');
             });
             this.isPeeking = false;
-            
+
             setTimeout(() => {
                 this.peekCooldown = false;
                 this.updatePeekButton();
             }, 2000);
         }, 2000);
     }
-    
+
     private updatePeekButton(): void {
         const peeksLeftSpan = document.getElementById("peeks-left");
-        const peekBtn = document.getElementById("peek-btn");
-        
+        const peekBtn = document.getElementById("peek-btn") as HTMLButtonElement | null;
+
         if (peeksLeftSpan) {
             peeksLeftSpan.textContent = this.peeksLeft.toString();
         }
-        
+
         if (peekBtn) {
             if (this.peeksLeft <= 0) {
                 peekBtn.disabled = true;
@@ -281,18 +294,18 @@ export class Game {
 
     private checkSolution(): void {
         let isCorrect = true;
-        
-        for (let row = 0; row < 7; row++) {
-            for (let col = 0; col < 7; col++) {
+
+        for (let row = 0; row < GRID_HEIGHT; row++) {
+            for (let col = 0; col < GRID_WIDTH; col++) {
                 const shouldBeBlackedOut = !this.validCells.has(`${col},${row}`);
                 const isBlackedOut = this.blackedOutCells[row][col];
-                
+
                 if (shouldBeBlackedOut !== isBlackedOut) {
                     isCorrect = false;
                 }
             }
         }
-    
+
         this.showSolutionFeedback(isCorrect);
     }
 
@@ -300,8 +313,8 @@ export class Game {
         const message = document.getElementById("message");
         if (message) {
             message.className = `message ${isCorrect ? 'success' : 'error'}`;
-            message.textContent = isCorrect 
-                ? "Congratulations! You've revealed the hidden crossword!" 
+            message.textContent = isCorrect
+                ? "Congratulations! You've revealed the hidden crossword!"
                 : "Not quite right. Keep trying!";
         }
 
@@ -310,8 +323,8 @@ export class Game {
 
         grid.querySelectorAll('.cell').forEach((cell: Element) => {
             const cellElement = cell as HTMLElement;
-            const row = parseInt(cellElement.dataset.row || '0');
-            const col = parseInt(cellElement.dataset.col || '0');
+            const row = parseInt(cellElement.dataset.row || '0', 10);
+            const col = parseInt(cellElement.dataset.col || '0', 10);
             const shouldBeBlackedOut = !this.validCells.has(`${col},${row}`);
             const isBlackedOut = cellElement.classList.contains('blackout');
 
@@ -341,15 +354,15 @@ export class Game {
     }
 
     private resetGrid(): void {
-        this.blackedOutCells = Array(7).fill().map(() => Array(7).fill(false));
-        
+        this.blackedOutCells = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(false));
+
         document.querySelectorAll(".cell").forEach(cell => {
             cell.classList.remove("blackout", "peek");
         });
         document.querySelectorAll('.clue-item').forEach(clue => {
             clue.classList.remove('solved');
         });
-        
+
         this.clearMessage();
     }
 
@@ -361,11 +374,11 @@ export class Game {
         }
     }
 
-    private showError(message: string): void {
+    private showError(msg: string): void {
         const messageElement = document.getElementById("message");
         if (messageElement) {
             messageElement.className = "message error";
-            messageElement.textContent = message;
+            messageElement.textContent = msg;
         }
     }
 
