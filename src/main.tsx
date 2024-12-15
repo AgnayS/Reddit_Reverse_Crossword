@@ -1,5 +1,7 @@
 import './createPost';
 import { Devvit, useState } from '@devvit/public-api';
+import './js/runner.tsx';
+
 
 Devvit.configure({
   redditAPI: true,

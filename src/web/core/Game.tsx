@@ -3,9 +3,21 @@ import { PuzzleGenerator } from '../utils/PuzzleGenerator.tsx';
 import type { Theme, WordInfo } from '../utils/types.tsx';
 import { fetchWordsAndClues } from '../utils/WordFetcher.tsx';
 
-// Define the grid size variables here
 const GRID_WIDTH = 7;
 const GRID_HEIGHT = 7;
+
+interface Score {
+    username: string;
+    time: string;
+    score: number;
+    date: string;
+}
+
+interface GameUser {
+    username: string;
+    lastPlayedDate?: string;
+    highScore?: number;
+}
 
 export class Game {
     private puzzleGrid: string[][] = [];
@@ -20,9 +32,12 @@ export class Game {
     private startTime: number | null = null;
     private timerInterval: number | null = null;
     private peekCooldown: boolean = false;
+    private currentUser: GameUser;
 
     constructor() {
-        // Initialize blackedOutCells based on grid size
+        this.currentUser = {
+            username: 'guest' // Default value
+        };
         this.blackedOutCells = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(false));
 
         if (document.readyState === 'loading') {
@@ -39,7 +54,7 @@ export class Game {
             this.generatePuzzle();
             this.renderGame();
             this.updatePeekButton();
-            this.startTimer();
+            this.startTimer(); // Timer starts now, but game overlay hidden until user clicks "Start Playing"
         } catch (error) {
             console.error("Error initializing game:", error);
             this.showError("Failed to load the game. Please try refreshing the page.");
@@ -58,6 +73,25 @@ export class Game {
             console.error("Error fetching theme:", error);
             throw error;
         }
+    }
+
+    private saveScore(time: string, score: number): void {
+        const existingScores = JSON.parse(localStorage.getItem('darkword_scores') || '[]');
+        const newScore = {
+            username: this.currentUser.username,
+            time,
+            score,
+            date: new Date().toISOString()
+        };
+        existingScores.push(newScore);
+        localStorage.setItem('darkword_scores', JSON.stringify(existingScores));
+    }
+
+    private calculateScore(time: number, mistakes: number): number {
+        const baseScore = 100;
+        const timeMultiplier = Math.max(0, 1 - (time / 300)); // 5 minutes max
+        const mistakePenalty = mistakes * 5;
+        return Math.max(0, Math.round(baseScore * timeMultiplier - mistakePenalty));
     }
 
     private startTimer(): void {
@@ -120,11 +154,6 @@ export class Game {
         grid.addEventListener("click", (e) => this.handleCellClick(e));
     }
 
-    /**
-     * This is where we use the defined grid size variables.
-     * We're passing `GRID_WIDTH, GRID_HEIGHT` to the PuzzleGenerator constructor.
-     * Change `GRID_WIDTH` and `GRID_HEIGHT` at the top of the file to alter the puzzle size.
-     */
     private generatePuzzle(): void {
         if (!this.theme) return;
 
@@ -321,6 +350,7 @@ export class Game {
         const grid = document.getElementById("grid");
         if (!grid) return;
 
+        let mistakes = 0;
         grid.querySelectorAll('.cell').forEach((cell: Element) => {
             const cellElement = cell as HTMLElement;
             const row = parseInt(cellElement.dataset.row || '0', 10);
@@ -337,6 +367,9 @@ export class Game {
                     cellElement.classList.add('solution-word');
                 }
             } else {
+                if (shouldBeBlackedOut !== isBlackedOut) {
+                    mistakes++;
+                }
                 if (shouldBeBlackedOut === isBlackedOut) {
                     cellElement.classList.add('correct-cell');
                 } else {
@@ -350,6 +383,16 @@ export class Game {
                 clue.classList.add('solved');
             });
             this.stopTimer();
+            if (this.startTime !== null) {
+                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+                const score = this.calculateScore(elapsed, 0);
+                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const seconds = (elapsed % 60).toString().padStart(2, '0');
+                const timeStr = `${minutes}:${seconds}`;
+                this.saveScore(timeStr, score);
+                // If you wish, you can display leaderboard here
+                // by implementing a similar method to display top scores.
+            }
         }
     }
 
