@@ -6,10 +6,13 @@
   "type": "module",
   "dependencies": {
     "@devvit/public-api": "0.11.4",
+    "autoprefixer": "^10.4.20",
     "dotenv": "^16.4.7",
     "openai": "^4.76.2",
+    "postcss": "^8.4.49",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "tailwindcss": "^3.4.16",
     "zod": "^3.24.1"
   },
   "devDependencies": {

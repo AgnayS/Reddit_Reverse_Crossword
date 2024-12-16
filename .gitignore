@@ -5,3 +5,9 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+src/all.tsx
+src/combine-files.cjs
+tree.txt
+package-lock.json
+webroot
+webroot/index.html
