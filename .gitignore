@@ -9,3 +9,4 @@ src/all.tsx
 src/combine-files.cjs
 tree.txt
 package-lock.json
+.env
