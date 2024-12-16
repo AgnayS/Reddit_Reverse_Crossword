@@ -11,6 +11,33 @@ class GameManager {
 
     private init(): void {
         this.setupUIHandlers();
+        this.setupMessageHandlers();
+        
+        // Notify Devvit that the game is ready to receive data
+        window.parent.postMessage({
+            type: 'GAME_LOADED'
+        }, '*');
+    }
+
+    private setupMessageHandlers(): void {
+        // Listen for messages from Devvit
+        window.addEventListener('message', (event) => {
+            console.log("Received event:", event);
+            
+            if (event.data.type === 'devvit-message') {
+                const devvitData = event.data.data;
+                console.log("Devvit data:", devvitData);
+
+                // Access nested message object
+                if (devvitData && devvitData.message && devvitData.message.message === 'INITIALIZE_GAME') {
+                    console.log("Game initialization payload:", devvitData.message.payload);
+                    if (!this.game) {
+                        this.game = new Game();
+                    }
+                    this.game.initializeWithData(devvitData.message.payload);
+                }
+            }
+        });
     }
 
     private setupUIHandlers(): void {
@@ -46,9 +73,6 @@ class GameManager {
         tutorialOverlay.classList.add('hidden');
         gameContent.classList.remove('hidden');
         this.startTimer();
-        if (!this.game) {
-            this.game = new Game();
-        }
     }
 
     private startTimer(): void {

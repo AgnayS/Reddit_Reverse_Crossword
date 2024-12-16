@@ -48,7 +48,7 @@ export class Game {
 
     private async init(): Promise<void> {
         try {
-            await this.setupTheme();
+            //await this.setupTheme();
             this.setupUIElements();
             this.generatePuzzle();
             this.renderGame();
@@ -58,6 +58,24 @@ export class Game {
             console.error("Error initializing game:", error);
             this.showError("Failed to load the game. Please try refreshing the page.");
         }
+    }
+
+    public initializeWithData(payload: { theme: string; words: string[]; clues: Record<string, string> }): void {
+        console.log("Game received initialization data:", payload);
+        
+        this.theme = {
+            name: payload.theme,
+            words: payload.words,
+            clues: payload.clues
+        };
+        
+        console.log("Theme set:", this.theme);
+        this.generatePuzzle();
+        console.log("Puzzle generated");
+        this.renderGame();
+        console.log("Game rendered");
+        this.updatePeekButton();
+        this.startTimer();
     }
 
     private async setupTheme(): Promise<void> {

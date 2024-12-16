@@ -10,3 +10,8 @@ src/combine-files.cjs
 tree.txt
 package-lock.json
 .env
+# Ignore everything in the webroot folder
+webroot/*
+
+# Allow the folder itself to be tracked
+!webroot/

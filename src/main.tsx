@@ -1,8 +1,10 @@
 import './createPost';
 import { Devvit, useState } from '@devvit/public-api';
-import './web/runner.tsx';
+import { fetchWordsAndClues } from '../server/wordFetcher.server.ts';
+
 Devvit.configure({
   redditAPI: true,
+  http: true,
 });
 
 Devvit.addCustomPostType({
@@ -15,8 +17,25 @@ Devvit.addCustomPostType({
       return user?.username ?? 'guest';
     });
 
-    const onLaunchClick = () => {
-      setWebviewVisible(true);
+    const onLaunchClick = async () => {
+      try {
+        // Fetch the words data when launching the game
+        const wordsData = await fetchWordsAndClues();
+        console.log("Fetched game data:", wordsData); // Debug log
+        
+        // Send the data to the webview with proper typing
+        context.ui.webView.postMessage('darkword', {
+            message: 'INITIALIZE_GAME',
+            payload: {
+                theme: wordsData.theme,
+                words: wordsData.words,
+                clues: wordsData.clues
+            }
+        });
+        setWebviewVisible(true);
+      } catch (error) {
+        console.error("Error fetching game data:", error);
+      }
     };
 
     return (
@@ -50,6 +69,12 @@ Devvit.addCustomPostType({
               id="darkword"
               url="index.html"
               grow
+              onMessage={(message) => {
+                const msg = message as { type: string };
+                if (msg.type === 'GAME_LOADED') {
+                  onLaunchClick();
+                }
+              }}
             />
           </vstack>
         </vstack>
