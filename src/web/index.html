@@ -12,14 +12,14 @@
         <!-- Welcome Screen -->
         <div id="welcome-overlay" class="welcome-overlay">
             <div class="welcome-card">
-                <div class="flex items-center justify-center gap-3 mb-5">
-                    <h1 class="text-4xl font-bold m-0 text-gray-900">Welcome to DarkWord</h1>
+                <div class="flex items-center justify-center gap-3 mb-5 px-4">
+                    <h1 class="text-2xl md:text-4xl font-bold m-0 text-gray-900">Welcome to DarkWord</h1>
                     <span class="bg-[#0079D3] text-white px-3 py-1 rounded-full text-sm">Beta</span>
                 </div>
-                <p class="text-lg text-gray-600 mb-10">
+                <p class="text-base md:text-lg text-gray-600 mb-10 px-4">
                     A reverse crossword puzzle where you reveal hidden words by strategically blacking out cells.
                 </p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 px-4">
                     <div class="feature-box">
                         <i class="fas fa-clock"></i>
                         <h3 class="text-lg font-semibold mb-2">Timed Challenge</h3>
@@ -36,11 +36,11 @@
                         <p>Compare scores on the leaderboard</p>
                     </div>
                 </div>
-                <div class="flex justify-center gap-4">
-                    <button id="start-game" class="btn btn-primary">
+                <div class="flex flex-col md:flex-row justify-center gap-4 px-4">
+                    <button id="start-game" class="btn btn-primary w-full md:w-auto">
                         <i class="fas fa-play"></i> Start Playing
                     </button>
-                    <button id="how-to-play" class="btn btn-secondary">
+                    <button id="how-to-play" class="btn btn-secondary w-full md:w-auto">
                         <i class="fas fa-book"></i> How to Play
                     </button>
                 </div>
@@ -48,7 +48,7 @@
         </div>
 
         <!-- Tutorial Overlay -->
-        <div id="tutorial-overlay" class="tutorial-overlay">
+        <div id="tutorial-overlay" class="tutorial-overlay hidden">
             <div class="tutorial-card">
                 <h2 class="text-2xl font-bold mb-8">How to Play</h2>
                 <div class="space-y-6">
@@ -83,19 +83,20 @@
 
         <!-- Game Content -->
         <div id="game-content" class="hidden">
-            <div class="flex justify-between items-center pb-4 border-b border-gray-200 mb-5">
+            <div class="game-header">
                 <div class="flex items-center gap-3">
-                    <h1 class="text-2xl font-bold m-0">DarkWord</h1>
-                    <div id="theme-display" class="text-gray-600 text-sm"></div>
+                    <h1 class="game-title">DarkWord</h1>
+                    <div id="theme-display" class="theme-display text-sm md:text-base"></div>
                 </div>
-                <div id="timer" class="font-mono text-xl font-bold text-[#0079D3]">00:00</div>
+                <div id="timer" class="game-timer">00:00</div>
             </div>
-            <div class="grid grid-cols-1 lg:grid-cols-[minmax(auto,600px)_300px] gap-6 p-5">
+
+            <div class="game-layout">
                 <div class="grid-section">
-                    <div id="grid" class="game-grid">
-                        <!-- Grid populated by JS -->
+                    <div class="grid-container">
+                        <div id="grid" class="game-grid"></div>
                     </div>
-                    <div id="controls" class="flex gap-3 justify-center my-4">
+                    <div class="controls-section">
                         <button id="submit-btn" class="btn btn-primary">Check Solution</button>
                         <button id="reset-btn" class="btn btn-secondary">Reset Grid</button>
                         <button id="peek-btn" class="btn btn-secondary">
@@ -104,84 +105,14 @@
                     </div>
                     <div id="message" class="message"></div>
                 </div>
-                <div id="clues-section" class="bg-gray-50 p-4 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-3">Clues</h3>
-                    <div id="clues-list" class="space-y-2"></div>
+                <div id="clues-section" class="clues-section">
+                    <h3 class="clues-title">Clues</h3>
+                    <div id="clues-list" class="clues-list"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        const welcomeOverlay = document.getElementById('welcome-overlay');
-        const tutorialOverlay = document.getElementById('tutorial-overlay');
-        const gameContent = document.getElementById('game-content');
-        const startGameBtn = document.getElementById('start-game');
-        const howToPlayBtn = document.getElementById('how-to-play');
-        const backToWelcomeBtn = document.getElementById('back-to-welcome');
-        const startFromTutorialBtn = document.getElementById('start-from-tutorial');
-        const resetBtn = document.getElementById('reset-btn');
-        const peekBtn = document.getElementById('peek-btn');
-        const timerElement = document.getElementById('timer');
-
-        let timerInterval;
-        let secondsElapsed = 0;
-
-        function startTimer() {
-            clearInterval(timerInterval);
-            secondsElapsed = 0;
-            updateTimerDisplay();
-            timerInterval = setInterval(() => {
-                secondsElapsed++;
-                updateTimerDisplay();
-            }, 1000);
-        }
-
-        function updateTimerDisplay() {
-            const minutes = Math.floor(secondsElapsed / 60).toString().padStart(2, '0');
-            const seconds = (secondsElapsed % 60).toString().padStart(2, '0');
-            timerElement.textContent = `${minutes}:${seconds}`;
-        }
-
-        function startGame() {
-            welcomeOverlay.classList.add('hidden');
-            tutorialOverlay.style.display = 'none';
-            gameContent.classList.remove('hidden');
-            startTimer();
-        }
-
-        startGameBtn.addEventListener('click', () => {
-            startGame();
-        });
-
-        howToPlayBtn.addEventListener('click', () => {
-            welcomeOverlay.classList.add('hidden');
-            tutorialOverlay.style.display = 'flex';
-        });
-
-        backToWelcomeBtn.addEventListener('click', () => {
-            tutorialOverlay.style.display = 'none';
-            welcomeOverlay.classList.remove('hidden');
-        });
-
-        startFromTutorialBtn.addEventListener('click', () => {
-            startGame();
-        });
-
-        resetBtn.addEventListener('click', () => {
-            const cells = document.querySelectorAll('.cell');
-            cells.forEach(cell => cell.classList.remove('blackout'));
-        });
-
-        peekBtn.addEventListener('click', () => {
-            // This calls a function that you must implement in your runner.tsx
-            performPeek();
-        });
-
-        function performPeek() {
-            console.log("Peek button clicked. Implement peek logic!");
-        }
-    </script>
     <script type="module" src="runner.tsx"></script>
 </body>
 </html>

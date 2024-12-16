@@ -1,4 +1,3 @@
-// src/js/core/Game.tsx
 import { PuzzleGenerator } from '../utils/PuzzleGenerator.tsx';
 import type { Theme, WordInfo } from '../utils/types.tsx';
 import { fetchWordsAndClues } from '../utils/WordFetcher.tsx';
@@ -36,7 +35,7 @@ export class Game {
 
     constructor() {
         this.currentUser = {
-            username: 'guest' // Default value
+            username: 'guest'
         };
         this.blackedOutCells = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(false));
 
@@ -54,7 +53,7 @@ export class Game {
             this.generatePuzzle();
             this.renderGame();
             this.updatePeekButton();
-            this.startTimer(); // Timer starts now, but game overlay hidden until user clicks "Start Playing"
+            this.startTimer(); 
         } catch (error) {
             console.error("Error initializing game:", error);
             this.showError("Failed to load the game. Please try refreshing the page.");
@@ -62,17 +61,12 @@ export class Game {
     }
 
     private async setupTheme(): Promise<void> {
-        try {
-            const response = await fetchWordsAndClues();
-            this.theme = {
-                name: response.theme,
-                words: response.words,
-                clues: response.clues
-            };
-        } catch (error) {
-            console.error("Error fetching theme:", error);
-            throw error;
-        }
+        const response = await fetchWordsAndClues();
+        this.theme = {
+            name: response.theme,
+            words: response.words,
+            clues: response.clues
+        };
     }
 
     private saveScore(time: string, score: number): void {
@@ -127,31 +121,55 @@ export class Game {
         }
     }
 
-    private resetTimer(): void {
-        this.stopTimer();
-        this.startTimer();
-    }
-
     private setupUIElements(): void {
         const grid = document.getElementById("grid");
         const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement | null;
         const resetBtn = document.getElementById("reset-btn") as HTMLButtonElement | null;
         const peekBtn = document.getElementById("peek-btn") as HTMLButtonElement | null;
-        const peeksLeftSpan = document.getElementById("peeks-left");
-        const message = document.getElementById("message");
-        const themeDisplay = document.getElementById("theme-display");
-        const cluesSection = document.getElementById("clues-section");
 
-        if (!grid || !submitBtn || !resetBtn || !peekBtn || !peeksLeftSpan ||
-            !message || !themeDisplay || !cluesSection) {
+        if (!grid || !submitBtn || !resetBtn || !peekBtn) {
             console.error("Required DOM elements not found");
             return;
         }
 
+        grid.addEventListener("click", (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (!target?.classList.contains("cell")) return;
+
+            const row = parseInt(target.dataset.row || "0", 10);
+            const col = parseInt(target.dataset.col || "0", 10);
+            
+            this.toggleCell(target, row, col);
+            this.clearMessage();
+        });
+
         submitBtn.addEventListener("click", () => this.checkSolution());
         resetBtn.addEventListener("click", () => this.resetGrid());
         peekBtn.addEventListener("click", () => this.handlePeek());
-        grid.addEventListener("click", (e) => this.handleCellClick(e));
+    }
+
+    private renderGrid(): void {
+        const grid = document.getElementById("grid");
+        if (!grid) return;
+    
+        grid.innerHTML = '';
+        this.puzzleGrid.forEach((row, rowIndex) => {
+            row.forEach((letter, colIndex) => {
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                const letterSpan = document.createElement("span");
+                letterSpan.textContent = letter;
+                letterSpan.className = "select-none";
+                cell.appendChild(letterSpan);
+                
+                cell.dataset.row = rowIndex.toString();
+                cell.dataset.col = colIndex.toString();
+                if (this.blackedOutCells[rowIndex][colIndex]) {
+                    cell.classList.add("blackout");
+                }
+                grid.appendChild(cell);
+            });
+        });
     }
 
     private generatePuzzle(): void {
@@ -187,26 +205,6 @@ export class Game {
         this.renderTheme();
     }
 
-    private renderGrid(): void {
-        const grid = document.getElementById("grid");
-        if (!grid) return;
-
-        grid.innerHTML = '';
-        this.puzzleGrid.forEach((row, rowIndex) => {
-            row.forEach((letter, colIndex) => {
-                const cell = document.createElement("div");
-                cell.className = "cell";
-                cell.textContent = letter;
-                cell.dataset.row = rowIndex.toString();
-                cell.dataset.col = colIndex.toString();
-                if (this.blackedOutCells[rowIndex][colIndex]) {
-                    cell.classList.add("blackout");
-                }
-                grid.appendChild(cell);
-            });
-        });
-    }
-
     private renderClues(): void {
         const cluesList = document.getElementById("clues-list");
         if (!cluesList || !this.theme) return;
@@ -229,17 +227,6 @@ export class Game {
         const themeDisplay = document.getElementById("theme-display");
         if (!themeDisplay || !this.theme) return;
         themeDisplay.textContent = `Today's theme: ${this.theme.name}`;
-    }
-
-    private handleCellClick(e: Event): void {
-        const cell = e.target as HTMLElement;
-        if (!cell.classList.contains("cell")) return;
-
-        const row = parseInt(cell.dataset.row || "0", 10);
-        const col = parseInt(cell.dataset.col || "0", 10);
-
-        this.toggleCell(cell, row, col);
-        this.clearMessage();
     }
 
     private toggleCell(cell: HTMLElement, row: number, col: number): void {
@@ -325,11 +312,12 @@ export class Game {
             for (let col = 0; col < GRID_WIDTH; col++) {
                 const shouldBeBlackedOut = !this.validCells.has(`${col},${row}`);
                 const isBlackedOut = this.blackedOutCells[row][col];
-
                 if (shouldBeBlackedOut !== isBlackedOut) {
                     isCorrect = false;
+                    break;
                 }
             }
+            if (!isCorrect) break;
         }
 
         this.showSolutionFeedback(isCorrect);
@@ -337,48 +325,14 @@ export class Game {
 
     private showSolutionFeedback(isCorrect: boolean): void {
         const message = document.getElementById("message");
-        if (message) {
-            message.className = `message ${isCorrect ? 'success' : 'error'}`;
-            message.textContent = isCorrect
-                ? "Congratulations! You've revealed the hidden crossword!"
-                : "Not quite right. Keep trying!";
-        }
+        if (!message) return;
 
-        const grid = document.getElementById("grid");
-        if (!grid) return;
-
-        let mistakes = 0;
-        grid.querySelectorAll('.cell').forEach((cell: Element) => {
-            const cellElement = cell as HTMLElement;
-            const row = parseInt(cellElement.dataset.row || '0', 10);
-            const col = parseInt(cellElement.dataset.col || '0', 10);
-            const shouldBeBlackedOut = !this.validCells.has(`${col},${row}`);
-            const isBlackedOut = cellElement.classList.contains('blackout');
-
-            cellElement.classList.remove('correct-cell', 'incorrect-cell');
-
-            if (isCorrect) {
-                if (shouldBeBlackedOut) {
-                    cellElement.classList.add('solution-blackout');
-                } else {
-                    cellElement.classList.add('solution-word');
-                }
-            } else {
-                if (shouldBeBlackedOut !== isBlackedOut) {
-                    mistakes++;
-                }
-                if (shouldBeBlackedOut === isBlackedOut) {
-                    cellElement.classList.add('correct-cell');
-                } else {
-                    cellElement.classList.add('incorrect-cell');
-                }
-            }
-        });
+        message.className = `message ${isCorrect ? 'success' : 'error'}`;
+        message.textContent = isCorrect
+            ? "Congratulations! That's correct!"
+            : "Not quite right. Keep trying!";
 
         if (isCorrect) {
-            document.querySelectorAll('.clue-item').forEach(clue => {
-                clue.classList.add('solved');
-            });
             this.stopTimer();
             if (this.startTime !== null) {
                 const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
@@ -387,27 +341,19 @@ export class Game {
                 const seconds = (elapsed % 60).toString().padStart(2, '0');
                 const timeStr = `${minutes}:${seconds}`;
                 this.saveScore(timeStr, score);
-                // If you wish, you can display leaderboard here
-                // by implementing a similar method to display top scores.
             }
         }
     }
 
     private resetGrid(): void {
-        // Clear all blackouts but maintain peek state and count
         this.blackedOutCells = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(false));
-
-        // Only clear visual blackouts, not peek effects
-        document.querySelectorAll(".cell").forEach(cell => {
-            if (!cell.classList.contains('peek')) {
-                cell.classList.remove("blackout");
-            }
+        const cells = document.querySelectorAll(".cell");
+        cells.forEach(cell => {
+            cell.classList.remove("blackout", "peek", "hint-blackout");
         });
-        
         document.querySelectorAll('.clue-item').forEach(clue => {
             clue.classList.remove('solved');
         });
-
         this.clearMessage();
     }
 

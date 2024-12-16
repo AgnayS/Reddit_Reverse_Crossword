@@ -1,4 +1,3 @@
-/* style.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,31 +14,29 @@
   --border-color: #e6e6e6;
   --success-color: #28a745;
   --error-color: #dc3545;
+  --grid-size: min(calc(100vw - 40px), 280px);
+  --cell-size: calc(var(--grid-size) / 7);
 }
 
-/* Base styles */
 @layer base {
   body {
     @apply m-0 p-5 min-h-screen bg-[#f0f2f5] font-sans;
     line-height: 1.5;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    overscroll-behavior-y: none;
   }
 }
 
-/* Component styles */
 @layer components {
-  /* Welcome Screen */
   .welcome-overlay {
-    @apply fixed inset-0 flex items-center justify-center z-[1000] p-5;
+    @apply fixed inset-0 flex items-center justify-center z-[1000] p-5 overflow-y-auto;
     background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
   }
 
   .welcome-card {
-    @apply bg-white/95 backdrop-blur rounded-2xl p-10 max-w-[800px] w-[90%] text-center shadow-xl;
-  }
-
-  .welcome-description {
-    @apply text-[var(--text-secondary)] text-xl mb-10;
+    @apply bg-white/95 backdrop-blur rounded-2xl p-6 md:p-10 max-w-[800px] w-[90%] text-center shadow-xl;
   }
 
   .feature-box {
@@ -50,14 +47,16 @@
     @apply text-4xl text-[#0079D3] mb-4 block;
   }
 
-  /* Tutorial Screen */
+  /* Tutorial Overlay */
+  /* Previously we had `hidden` by default, now we rely on adding/removing hidden class in HTML/JS.
+     Ensure tutorial-overlay is flex by default: */
   .tutorial-overlay {
-    @apply fixed inset-0 hidden items-center justify-center z-[1001] p-5;
+    @apply fixed inset-0 flex items-center justify-center z-[1001] p-5 overflow-y-auto;
     background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
   }
 
   .tutorial-card {
-    @apply bg-white/95 backdrop-blur rounded-2xl p-10 max-w-[600px] w-[90%] shadow-xl;
+    @apply bg-white/95 backdrop-blur rounded-2xl p-10 max-w-[600px] w-[90%] text-center shadow-xl;
   }
 
   .tutorial-step {
@@ -68,56 +67,108 @@
     @apply w-10 h-10 bg-blue-100 text-[var(--primary-color)] rounded-full flex items-center justify-center font-bold flex-shrink-0;
   }
 
-  /* Game Container */
   .game-container {
-    @apply max-w-[1000px] mx-auto bg-white rounded-xl shadow-sm p-5 mt-10;
+    @apply max-w-[1000px] mx-auto bg-white rounded-xl shadow-sm p-4 md:p-5 mt-4 md:mt-10;
+    min-height: calc(100vh - 2rem);
   }
 
-  /* Grid Styles */
+  .game-header {
+    @apply flex justify-between items-center pb-4 border-b border-gray-200 mb-5;
+  }
+
+  .game-title {
+    @apply text-2xl font-bold m-0;
+  }
+
+  .game-timer {
+    @apply font-mono text-xl font-bold text-[#0079D3];
+  }
+
+  .game-layout {
+    @apply grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6;
+  }
+
+  .grid-section {
+    @apply flex flex-col items-center gap-4;
+  }
+
+  .grid-container {
+    @apply w-full flex justify-center items-center overflow-visible p-4;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   .game-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    border: 2px solid black;
-    width: 280px;
-    height: 280px;
-    background: white;
-    margin: 0 auto 20px;
+    width: var(--grid-size);
+    height: var(--grid-size);
+    @apply bg-white rounded-xl shadow-lg m-auto relative;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    padding: 2px;
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06),
+      inset 0 2px 4px rgba(0, 0, 0, 0.05);
   }
 
   .cell {
-    @apply flex items-center justify-center text-base font-bold select-none border border-black cursor-pointer transition-all;
-    width: 40px;
-    height: 40px;
-    box-sizing: border-box;
+    width: var(--cell-size);
+    height: var(--cell-size);
+    @apply flex items-center justify-center text-base md:text-lg font-bold select-none cursor-pointer transition-all relative;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    background: #fff;
+    color: #000;
   }
 
-  .cell:hover {
-    @apply scale-105 shadow-sm z-10;
+  .cell span {
+    @apply z-10;
+    visibility: visible;
   }
 
-  .cell.blackout {
-    @apply bg-black text-black scale-95;
+  .cell::before {
+    content: '';
+    @apply absolute inset-0 bg-transparent transition-all duration-200;
+    border-radius: 4px;
+    z-index: -1;
   }
 
-  .cell.hint-blackout {
-    @apply !bg-black/70 !text-white/30;
+  .cell:not(.blackout):hover::before {
+    @apply bg-blue-50;
   }
 
-  .cell.highlight {
+  .cell:active::before {
     @apply bg-blue-100;
   }
 
-  /* Buttons */
+  .cell.blackout {
+    background: #000;
+  }
+  .cell.blackout span {
+    visibility: hidden;
+  }
+
+  .cell.peek.hint-blackout {
+    background: #111;
+  }
+  .cell.peek.hint-blackout span {
+    visibility: hidden;
+  }
+
+  .controls-section {
+    @apply flex flex-wrap gap-3 justify-center my-4 w-full px-4;
+  }
+
   .btn {
     @apply px-4 py-2 rounded font-medium transition-all inline-flex items-center gap-2 border-none cursor-pointer;
+    -webkit-tap-highlight-color: transparent;
+    min-width: 120px;
+    touch-action: manipulation;
   }
 
-  .btn:hover {
-    @apply -translate-y-0.5;
-  }
-
-  .btn i {
-    @apply mr-2;
+  .btn:active {
+    @apply transform scale-95;
   }
 
   .btn.btn-primary {
@@ -132,22 +183,31 @@
     @apply opacity-50 cursor-not-allowed;
   }
 
-  /* Clues Section */
   .clues-section {
-    @apply bg-gray-50 p-4 rounded-lg;
+    @apply bg-gray-50 p-4 rounded-lg overflow-y-auto;
+    height: calc(100vh - 400px);
+    max-height: 600px;
+  }
+
+  .clues-title {
+    @apply text-lg font-semibold mb-3;
   }
 
   .clue-item {
-    @apply p-2.5 bg-white border border-[var(--border-color)] rounded my-1 transition-all hover:bg-gray-50 hover:-translate-y-0.5 hover:shadow-sm;
+    @apply p-2.5 bg-white border border-[var(--border-color)] rounded my-1 transition-all;
+    touch-action: manipulation;
+  }
+
+  .clue-item:hover {
+    @apply bg-gray-50 -translate-y-0.5 shadow-sm;
   }
 
   .clue-item.solved {
     @apply text-[var(--success-color)] font-medium border-[var(--success-color)];
   }
 
-  /* Message */
   .message {
-    @apply text-center p-3 rounded-lg mt-4 hidden;
+    @apply text-center p-3 rounded-lg mt-4 hidden w-full;
   }
 
   .message.success {
@@ -170,15 +230,46 @@
   animation: peek-pulse 2s ease-in-out;
 }
 
-/* Media Queries */
 @media (max-width: 768px) {
-  .game-grid {
-    width: 100%;
-    height: auto;
+  .welcome-card {
+    @apply min-h-screen w-full m-0 rounded-none;
+  }
+
+  .btn {
+    @apply flex-1 justify-center;
   }
 
   .cell {
-    width: calc(100% / 7);
-    height: calc(100% / 7);
+    @apply text-sm;
+  }
+
+  .clues-section {
+    height: auto;
+    max-height: 300px;
+  }
+
+  .game-grid {
+    box-shadow: 
+      0 2px 4px -1px rgba(0, 0, 0, 0.1),
+      0 1px 2px -1px rgba(0, 0, 0, 0.06),
+      inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .cell:hover::before {
+    background: transparent;
+  }
+
+  .cell:active::before {
+    @apply bg-blue-50;
+  }
+
+  .btn:hover {
+    transform: none;
+  }
+
+  .feature-box:hover {
+    transform: none;
   }
 }
