@@ -1,6 +1,6 @@
 import './createPost';
 import { Devvit, useState } from '@devvit/public-api';
-import './js/runner.tsx';
+import './web/runner.tsx';
 
 
 Devvit.configure({
