@@ -132,16 +132,29 @@ export class Game {
             return;
         }
 
-        grid.addEventListener("click", (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            if (!target?.classList.contains("cell")) return;
+        const newGrid = grid.cloneNode(true);
+    grid.parentNode?.replaceChild(newGrid, grid);
 
-            const row = parseInt(target.dataset.row || "0", 10);
-            const col = parseInt(target.dataset.col || "0", 10);
-            
-            this.toggleCell(target, row, col);
-            this.clearMessage();
-        });
+    // Add the click handler to the new grid
+    newGrid.addEventListener("click", (e: MouseEvent) => {
+        const target = e.target as HTMLElement;
+        const cellElement = target.closest(".cell");
+        
+        if (!cellElement) return;
+        
+        // Prevent event bubbling
+        e.stopPropagation();
+        
+        const row = parseInt(cellElement.getAttribute("data-row") || "0", 10);
+        const col = parseInt(cellElement.getAttribute("data-col") || "0", 10);
+
+        // Add debug logging
+        console.log(`Click on cell ${row},${col}`);
+        console.log(`Current state before toggle:`, this.blackedOutCells[row][col]);
+        
+        this.toggleCell(cellElement as HTMLElement, row, col);
+        this.clearMessage();
+    });
 
         submitBtn.addEventListener("click", () => this.checkSolution());
         resetBtn.addEventListener("click", () => this.resetGrid());
