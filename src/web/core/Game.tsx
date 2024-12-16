@@ -210,20 +210,17 @@ export class Game {
     private renderClues(): void {
         const cluesList = document.getElementById("clues-list");
         if (!cluesList || !this.theme) return;
-
+    
         cluesList.innerHTML = '';
         this.words.forEach(wordInfo => {
             const clue = this.theme?.clues[wordInfo.word];
             if (!clue) return;
-
+    
             const clueElement = document.createElement("div");
             clueElement.className = "clue-item";
             clueElement.textContent = `• ${clue}`;
             clueElement.dataset.word = wordInfo.word;
-
-            clueElement.addEventListener('mouseenter', () => this.highlightWord(wordInfo));
-            clueElement.addEventListener('mouseleave', () => this.unhighlightWord(wordInfo));
-
+    
             cluesList.appendChild(clueElement);
         });
     }
@@ -397,11 +394,16 @@ export class Game {
     }
 
     private resetGrid(): void {
+        // Clear all blackouts but maintain peek state and count
         this.blackedOutCells = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(false));
 
+        // Only clear visual blackouts, not peek effects
         document.querySelectorAll(".cell").forEach(cell => {
-            cell.classList.remove("blackout", "peek");
+            if (!cell.classList.contains('peek')) {
+                cell.classList.remove("blackout");
+            }
         });
+        
         document.querySelectorAll('.clue-item').forEach(clue => {
             clue.classList.remove('solved');
         });
@@ -425,27 +427,4 @@ export class Game {
         }
     }
 
-    private highlightWord(wordInfo: WordInfo): void {
-        const { word, startX, startY, isVertical } = wordInfo;
-        for (let i = 0; i < word.length; i++) {
-            const x = isVertical ? startX : startX + i;
-            const y = isVertical ? startY + i : startY;
-            const cell = document.querySelector(`[data-row="${y}"][data-col="${x}"]`);
-            if (cell && !cell.classList.contains('blackout')) {
-                cell.classList.add('highlight');
-            }
-        }
-    }
-
-    private unhighlightWord(wordInfo: WordInfo): void {
-        const { word, startX, startY, isVertical } = wordInfo;
-        for (let i = 0; i < word.length; i++) {
-            const x = isVertical ? startX : startX + i;
-            const y = isVertical ? startY + i : startY;
-            const cell = document.querySelector(`[data-row="${y}"][data-col="${x}"]`);
-            if (cell) {
-                cell.classList.remove('highlight');
-            }
-        }
-    }
 }
