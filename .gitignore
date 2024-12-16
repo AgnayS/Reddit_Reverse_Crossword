@@ -9,5 +9,3 @@ src/all.tsx
 src/combine-files.cjs
 tree.txt
 package-lock.json
-webroot
-webroot/index.html
