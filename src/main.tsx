@@ -1,8 +1,6 @@
 import './createPost';
 import { Devvit, useState } from '@devvit/public-api';
 import './web/runner.tsx';
-
-
 Devvit.configure({
   redditAPI: true,
 });
