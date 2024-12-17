@@ -32,6 +32,7 @@ export class Game {
     private timerInterval: number | null = null;
     private peekCooldown: boolean = false;
     private currentUser: GameUser;
+    private isMouseDown: boolean = false; // For swiping support
 
     constructor() {
         this.currentUser = {
@@ -39,7 +40,6 @@ export class Game {
         };
         this.blackedOutCells = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(false));
 
-        // Removed startTimer() calls from constructor/init methods. We'll only start after data is ready.
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => this.setupUIElements());
         } else {
@@ -62,8 +62,8 @@ export class Game {
         console.log("Game rendered");
         this.updatePeekButton();
 
-        // Start the timer now that the puzzle is ready.
         this.startTimer();
+        this.clearMessage(); // Ensure message is hidden at start
     }
 
     private setupUIElements(): void {
@@ -92,6 +92,31 @@ export class Game {
 
             this.toggleCell(cellElement as HTMLElement, row, col);
             this.clearMessage();
+        });
+
+        // Add mouse events for swiping
+        (newGrid as HTMLDivElement).addEventListener("mousedown", (e: MouseEvent) => {
+            this.isMouseDown = true;
+            e.preventDefault();
+        });
+
+        document.addEventListener("mouseup", () => {
+            this.isMouseDown = false;
+        });
+
+        (newGrid as HTMLDivElement).addEventListener("mousemove", (e: MouseEvent) => {
+            if (!this.isMouseDown) return;
+            const target = e.target as HTMLElement;
+            const cellElement = target.closest(".cell") as HTMLElement | null;
+            if (!cellElement) return;
+
+            const row = parseInt(cellElement.getAttribute("data-row") || "0", 10);
+            const col = parseInt(cellElement.getAttribute("data-col") || "0", 10);
+
+            // Only apply blackout if not already blacked out
+            if (!this.blackedOutCells[row][col]) {
+                this.toggleCell(cellElement, row, col);
+            }
         });
 
         submitBtn.addEventListener("click", () => this.checkSolution());
@@ -308,10 +333,14 @@ export class Game {
     }
 
     private showSolutionFeedback(isCorrect: boolean): void {
+        const messageContainer = document.querySelector('.message-container') as HTMLDivElement;
         const message = document.getElementById("message");
-        if (!message) return;
 
+        if (!messageContainer || !message) return;
+
+        messageContainer.classList.remove('hidden');
         message.className = `message ${isCorrect ? 'success' : 'error'}`;
+        message.classList.remove('hidden');
         message.textContent = isCorrect
             ? "Congratulations! That's correct!"
             : "Not quite right. Keep trying!";
@@ -361,20 +390,24 @@ export class Game {
     }
 
     private clearMessage(): void {
+        const messageContainer = document.querySelector('.message-container') as HTMLDivElement;
         const message = document.getElementById("message");
-        if (message) {
+        if (messageContainer && message) {
+            messageContainer.classList.add('hidden');
             message.className = "message";
+            message.classList.add('hidden');
             message.textContent = "";
         }
     }
 
     private showError(msg: string): void {
+        const messageContainer = document.querySelector('.message-container') as HTMLDivElement;
         const messageElement = document.getElementById("message");
-        if (messageElement) {
+        if (messageContainer && messageElement) {
+            messageContainer.classList.remove('hidden');
             messageElement.className = "message error";
+            messageElement.classList.remove('hidden');
             messageElement.textContent = msg;
         }
     }
-	
-
 }

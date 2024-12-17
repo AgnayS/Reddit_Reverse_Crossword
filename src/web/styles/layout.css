@@ -1,0 +1,18 @@
+@layer components {
+  body {
+    /* Background image moved to body in index.html inline style */
+  }
+
+  .game-container {
+    @apply w-full h-full flex items-center justify-center p-4 bg-white/30 backdrop-blur-md backdrop-filter;
+    /* Now .game-container overlays a semi-transparent white with a backdrop blur effect */
+  }
+
+  .game-inner {
+    @apply max-w-4xl w-full flex flex-col gap-6 relative;
+  }
+
+  .clues-and-grid {
+    @apply flex w-full gap-6 items-stretch;
+  }
+}

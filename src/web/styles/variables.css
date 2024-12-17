@@ -2,44 +2,30 @@
 
 :root {
   /* Dimensions */
-  --grid-size: min(calc(100vw - 60px), 280px); /* Increase grid size */
-  --cell-size: calc(var(--grid-size) / 7); /* Adjust for 7 cells per row */
-
-  /* Borders */
-  --border-grid: 1px solid #d1d5db; /* Softer grid borders */
-  --border-cell: 1px solid #e5e7eb;
+  --grid-size: min(calc(100vw - 60px), 280px);
 
   /* Typography */
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
-  --font-size-base: 1rem; /* Standard text size */
+  --font-size-base: 1rem;
   --font-size-lg: 1.125rem;
-
-  /* Spacing */
-  --spacing-xs: 0.5rem; /* Improved spacing for smaller elements */
-  --spacing-sm: 0.75rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-}
-/* Base Styles */
-@layer base {
-  body {
-    @apply m-0 p-2 min-h-screen bg-[var(--color-background)] font-sans;
-    line-height: 1.4;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    overscroll-behavior-y: none;
-  }
-
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
 }
 
-/* Utility Classes */
+body {
+  @apply m-0 p-0 min-h-screen bg-gray-900 font-sans;
+  line-height: 1.4;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overscroll-behavior-y: none;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 .text-overflow-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
