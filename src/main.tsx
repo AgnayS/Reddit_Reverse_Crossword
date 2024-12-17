@@ -6,78 +6,125 @@ Devvit.configure({
   redditAPI: true,
   http: true,
   redis: true,
-  realtime: true
+  realtime: true,
 });
 
 Devvit.addCustomPostType({
   name: 'DarkWord Game',
   height: 'tall',
   render: (context) => {
-    
     const [webviewVisible, setWebviewVisible] = useState(false);
-    const [username] = useState(async () => {
-      const user = await context.reddit.getCurrentUser();
-      return user?.username ?? 'guest';
-    });
+    const [isLoading, setIsLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    // Loading Overlay Component
+    const LoadingOverlay = () => (
+      <zstack
+        width="100%"
+        height="100%"
+        alignment="middle center"
+        backgroundColor="rgba(255,255,255,0.95)"
+      >
+        <vstack alignment="middle center" gap="medium">
+          <hstack gap="small" alignment="middle center">
+            <text size="xxlarge" color="#0079D3">🔄</text>
+            <text size="large" color="#0079D3" weight="bold">
+              Loading, please wait...
+            </text>
+          </hstack>
+        </vstack>
+      </zstack>
+    );
+
+    // Start Game Handler
     const onLaunchClick = async () => {
-      try {
-        // Fetch the words data when launching the game
-        const wordsData = await fetchWordsAndClues();
-        console.log("Fetched game data:", wordsData);
+      setIsLoading(true); // Show loader
+      setWebviewVisible(false); // Hide WebView if previously loaded
+      setErrorMessage(null); // Clear any previous errors
 
-        // Send the data to the webview
+      try {
+        console.log("Starting data fetch...");
+        const wordsData = await fetchWordsAndClues();
+
+        // Validate Data
+        if (!wordsData || !wordsData.words || !wordsData.clues) {
+          throw new Error("Incomplete data received");
+        }
+
+        console.log("Fetched Game Data:", wordsData);
+
+        // Send game data to the WebView
         context.ui.webView.postMessage('darkword', {
           message: 'INITIALIZE_GAME',
           payload: {
             theme: wordsData.theme,
             words: wordsData.words,
-            clues: wordsData.clues
-          }
+            clues: wordsData.clues,
+          },
         });
+
+        // Display the WebView
         setWebviewVisible(true);
       } catch (error) {
-        console.error("Error fetching game data:", error);
+        console.error("Error loading game:", error);
+        setErrorMessage("Something went wrong. Please try again.");
+      } finally {
+        setIsLoading(false); // Stop loader
       }
     };
 
-
+    // Main Render
     return (
       <blocks height="tall">
         <vstack grow padding="small">
+          {/* Show Loader */}
+          {isLoading && <LoadingOverlay />}
+
+          {/* Error Message */}
+          {errorMessage && (
+            <text
+              size="medium"
+              color="red"
+              alignment="middle center"
+              weight="bold"
+            >
+              {errorMessage}
+            </text>
+          )}
+
+          {/* Conditional Render: Show Start Screen or WebView */}
           {!webviewVisible ? (
             <zstack grow height="100%" alignment="middle center">
               {/* Background Image */}
-              <image 
-                url="crossword.jpg" 
-                imageWidth={700} 
-                imageHeight={500} 
+              <image
+                url="crossword.jpg"
+                imageWidth={700}
+                imageHeight={500}
                 resizeMode="cover"
               />
 
-              {/* Semi-transparent panel */}
-              <vstack 
-                alignment="middle center" 
+              {/* Semi-Transparent Overlay */}
+              <vstack
+                alignment="middle center"
                 padding="medium"
-                backgroundColor="rgba(255,255,255,0.6)"
+                backgroundColor="rgba(255,255,255,0.8)"
                 cornerRadius="large"
                 borderColor="#000000"
                 borderWidth={2}
                 width="60%"
               >
-                {/* Title Section */}
-                <text 
-                  size="xxlarge" 
-                  color="#000000" 
-                  weight="bold" 
+                <text
+                  size="xxlarge"
+                  color="#000000"
+                  weight="bold"
                   alignment="middle center"
                 >
                   DarkWord
                 </text>
-                <text 
-                  size="large" 
-                  color="#000000" 
-                  weight="bold" 
+                <text
+                  size="large"
+                  color="#000000"
+                  weight="bold"
                   alignment="middle center"
                 >
                   A Reverse Crossword Puzzle
@@ -85,23 +132,18 @@ Devvit.addCustomPostType({
 
                 <spacer size="small" />
 
-                {/* Description */}
-                <text 
-                  size="medium" 
-                  alignment="middle center" 
-                  color="#000000"
-                >
+                <text size="medium" alignment="middle center" color="#000000">
                   Find the hidden words by solving clues!
                 </text>
 
                 <spacer size="medium" />
 
-                {/* Start Game Button */}
-                <button 
-                  appearance="primary" 
+                <button
+                  appearance="primary"
                   onPress={onLaunchClick}
+                  disabled={isLoading}
                 >
-                  🚀 Start Game
+                  {isLoading ? '🔄 Loading...' : '🚀 Start Game'}
                 </button>
               </vstack>
             </zstack>
@@ -114,7 +156,7 @@ Devvit.addCustomPostType({
                 onMessage={(message) => {
                   const msg = message as { type: string };
                   if (msg.type === 'GAME_LOADED') {
-                    onLaunchClick();
+                    console.log("Game loaded successfully");
                   }
                 }}
               />
