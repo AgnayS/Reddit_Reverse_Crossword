@@ -5,43 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DarkWord</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
+    <link href="styles/main.css" rel="stylesheet">
 </head>
 <body> 
     <div class="game-container">
         <!-- Welcome Screen -->
         <div id="welcome-overlay" class="welcome-overlay">
             <div class="welcome-card">
-                <div class="flex items-center justify-center gap-3 mb-5 px-4">
-                    <h1 class="text-2xl md:text-4xl font-bold m-0 text-gray-900">Welcome to DarkWord</h1>
-                    <span class="bg-[#0079D3] text-white px-3 py-1 rounded-full text-sm">Beta</span>
+                <div class="flex items-center justify-center gap-2 mb-3">
+                    <h1 class="text-xl font-bold m-0 text-gray-900">DarkWord</h1>
+                    <span class="bg-[#0079D3] text-white px-2 py-0.5 rounded-full text-xs">Beta</span>
                 </div>
-                <p class="text-base md:text-lg text-gray-600 mb-10 px-4">
-                    A reverse crossword puzzle where you reveal hidden words by strategically blacking out cells.
+                <p class="text-sm text-gray-600 mb-4">
+                    Reveal hidden words by strategically blacking out cells.
                 </p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 px-4">
+                <div class="grid grid-cols-3 gap-3 mb-4">
                     <div class="feature-box">
-                        <i class="fas fa-clock"></i>
-                        <h3 class="text-lg font-semibold mb-2">Timed Challenge</h3>
-                        <p>Race against the clock to solve puzzles</p>
+                        <i class="fas fa-clock text-lg"></i>
+                        <h3 class="text-sm font-semibold mb-1">Timed</h3>
+                        <p class="text-xs">Race the clock</p>
                     </div>
                     <div class="feature-box">
-                        <i class="fas fa-puzzle-piece"></i>
-                        <h3 class="text-lg font-semibold mb-2">Daily Puzzles</h3>
-                        <p>New themed puzzles every day</p>
+                        <i class="fas fa-puzzle-piece text-lg"></i>
+                        <h3 class="text-sm font-semibold mb-1">Daily</h3>
+                        <p class="text-xs">New puzzles</p>
                     </div>
                     <div class="feature-box">
-                        <i class="fas fa-trophy"></i>
-                        <h3 class="text-lg font-semibold mb-2">Compete</h3>
-                        <p>Compare scores on the leaderboard</p>
+                        <i class="fas fa-trophy text-lg"></i>
+                        <h3 class="text-sm font-semibold mb-1">Compete</h3>
+                        <p class="text-xs">Top scores</p>
                     </div>
                 </div>
-                <div class="flex flex-col md:flex-row justify-center gap-4 px-4">
-                    <button id="start-game" class="btn btn-primary w-full md:w-auto">
-                        <i class="fas fa-play"></i> Start Playing
+                <div class="flex justify-center gap-3">
+                    <button id="start-game" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Play
                     </button>
-                    <button id="how-to-play" class="btn btn-secondary w-full md:w-auto">
-                        <i class="fas fa-book"></i> How to Play
+                    <button id="how-to-play" class="btn btn-secondary">
+                        <i class="fas fa-book"></i> Help
                     </button>
                 </div>
             </div>
@@ -50,72 +50,70 @@
         <!-- Tutorial Overlay -->
         <div id="tutorial-overlay" class="tutorial-overlay hidden">
             <div class="tutorial-card">
-                <h2 class="text-2xl font-bold mb-8">How to Play</h2>
-                <div class="space-y-6">
+                <h2 class="text-lg font-bold mb-4">How to Play</h2>
+                <div class="space-y-3">
                     <div class="tutorial-step">
                         <div class="step-number">1</div>
                         <div>
-                            <h3 class="font-semibold mb-1">Examine the Grid</h3>
-                            <p>Look at the 7x7 grid filled with random letters. Hidden within are several words!</p>
+                            <h3 class="text-sm font-semibold">Examine the Grid</h3>
+                            <p class="text-xs">Find hidden words in the letter grid</p>
                         </div>
                     </div>
                     <div class="tutorial-step">
                         <div class="step-number">2</div>
                         <div>
-                            <h3 class="font-semibold mb-1">Black Out Cells</h3>
-                            <p>Click cells to black them out. The remaining cells should form valid words.</p>
+                            <h3 class="text-sm font-semibold">Black Out Cells</h3>
+                            <p class="text-xs">Click cells to reveal the crossword</p>
                         </div>
                     </div>
                     <div class="tutorial-step">
                         <div class="step-number">3</div>
                         <div>
-                            <h3 class="font-semibold mb-1">Use Hints Wisely</h3>
-                            <p>You have 3 peeks available - use them strategically to reveal correct cells.</p>
+                            <h3 class="text-sm font-semibold">Use Hints</h3>
+                            <p class="text-xs">3 peeks available to help you</p>
                         </div>
                     </div>
                 </div>
-                <div class="flex justify-end gap-4 mt-8">
+                <div class="flex justify-end gap-2 mt-4">
                     <button id="back-to-welcome" class="btn btn-secondary">Back</button>
-                    <button id="start-from-tutorial" class="btn btn-primary">Start Game</button>
+                    <button id="start-from-tutorial" class="btn btn-primary">Start</button>
                 </div>
             </div>
         </div>
 
         <!-- Game Content -->
         <div id="game-content" class="hidden">
-            <div class="game-header">
-                <div class="flex items-center gap-3">
-                    <h1 class="game-title">DarkWord</h1>
-                    <div id="theme-display" class="theme-display text-sm md:text-base"></div>
-                </div>
-                <div id="timer" class="game-timer">
-                    <i class="fa fa-clock"></i>
-                    <span id="timer-display">00:24</span>
-                </div>
-            </div>
-
-            <div class="game-layout">
-                <div class="grid-section">
-                    <div class="grid-container">
-                        <div id="grid" class="game-grid"></div>
-                    </div>
-                    <div class="controls-section">
-                        <button id="submit-btn" class="btn btn-primary">Check Solution</button>
-                        <button id="reset-btn" class="btn btn-secondary">Reset Grid</button>
-                        <button id="peek-btn" class="btn btn-secondary">
-                            Peek (<span id="peeks-left">3</span>)
-                        </button>
-                    </div>
-                    <div id="message" class="message"></div>
-                </div>
+            <!-- Using grid-cols-[250px_1fr] to maintain proportions but adding px-2 for just a bit of outer padding -->
+            <div class="grid grid-cols-[250px_1fr] gap-0 px-2 items-start">
+                <!-- Clues section -->
                 <div id="clues-section" class="clues-section">
                     <h3 class="clues-title">Clues</h3>
                     <div id="clues-list" class="clues-list"></div>
                 </div>
+                
+                <!-- Grid section - using negative margin to pull timer closer -->
+                <div class="flex flex-col items-center relative -mt-1">
+                    <div id="timer" class="absolute -top-1 right-0 game-timer z-10">
+                        <i class="fa fa-clock"></i>
+                        <span id="timer-display">00:00</span>
+                    </div>
+                    
+                    <div class="grid-container">
+                        <div id="grid" class="game-grid"></div>
+                    </div>
+                    <!-- Tighter spacing for controls -->
+                    <div class="flex gap-2 mt-1">
+                        <button id="peek-btn" class="btn btn-secondary">
+                            Peek (<span id="peeks-left">3</span>)
+                        </button>
+                        <button id="submit-btn" class="btn btn-primary">Check</button>
+                        <button id="reset-btn" class="btn btn-secondary">Reset</button>
+                    </div>
+                    <div id="message" class="message"></div>
+                </div>
             </div>
         </div>
     </div>
-
     <script type="module" src="runner.tsx"></script>
 </body>
 </html>

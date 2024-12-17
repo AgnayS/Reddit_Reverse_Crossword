@@ -1,0 +1,66 @@
+/* main.css */
+@import './variables.css';
+@import './components.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .welcome-card {
+    @apply min-h-screen w-full m-0 rounded-none;
+  }
+
+  .btn {
+    @apply flex-1 justify-center;
+  }
+
+  .cell {
+    @apply text-sm;
+  }
+
+  .clues-section {
+    height: auto;
+    max-height: 300px;
+  }
+
+  .game-header {
+    @apply pb-2 mb-4;
+  }
+
+  .game-title {
+    @apply text-xl;
+  }
+
+  .theme-display {
+    @apply text-sm px-2 py-1;
+  }
+
+  .game-timer {
+    @apply text-lg px-3 py-2;
+  }
+
+  .grid-container {
+    @apply p-2;
+  }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .cell:hover::before {
+    background: transparent;
+  }
+
+  .cell:active::before {
+    @apply bg-blue-50;
+  }
+
+  .btn:hover {
+    transform: none;
+  }
+
+  .feature-box:hover {
+    transform: none;
+  }
+}

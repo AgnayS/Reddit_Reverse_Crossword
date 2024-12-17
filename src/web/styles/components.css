@@ -1,0 +1,240 @@
+/* components.css */
+@layer components {
+  /* Welcome Screen */
+  .welcome-overlay {
+    @apply fixed inset-0 flex items-center justify-center z-[1000] p-5 overflow-y-auto;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  }
+
+  .welcome-card {
+    @apply bg-white/95 backdrop-blur rounded-2xl p-6 md:p-10 max-w-[800px] w-[90%] text-center shadow-xl;
+  }
+
+  .feature-box {
+    @apply bg-gray-50 p-6 rounded-xl transition-transform hover:-translate-y-1;
+  }
+
+  .feature-box i {
+    @apply text-4xl text-[#0079D3] mb-4 block;
+  }
+
+  /* Tutorial Section */
+  .tutorial-overlay {
+    @apply fixed inset-0 flex items-center justify-center z-[1001] p-5 overflow-y-auto;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  }
+
+  .tutorial-card {
+    @apply bg-white/95 backdrop-blur rounded-2xl p-10 max-w-[600px] w-[90%] text-center shadow-xl;
+  }
+
+  .tutorial-step {
+    @apply flex gap-5 mb-6 items-start text-left;
+  }
+
+  .step-number {
+    @apply w-10 h-10 bg-blue-100 text-[var(--primary-color)] rounded-full flex items-center justify-center font-bold flex-shrink-0;
+  }
+
+  /* Game Container */
+  .game-container {
+    @apply max-w-[1000px] mx-auto bg-white rounded-lg shadow-md p-2;
+    min-height: calc(100vh - 1rem);
+  }
+
+  /* Game Timer */
+  .game-timer {
+    @apply font-mono text-xs font-bold px-1.5 py-0.5 rounded-md inline-flex items-center gap-1 bg-white;
+    border: 1px solid #000;
+    color: var(--primary-color);
+}
+  
+  .game-timer i {
+    @apply text-[var(--primary-color)] text-xs;
+  }
+
+  /* Game Layout - Clues left, Grid right */
+  .game-layout {
+    @apply grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-0;
+    width: 100%;
+}
+
+.grid-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: var(--grid-size);
+  margin-top: -4px;  /* Pull grid up slightly */
+}
+
+  /* Grid Container */
+  .grid-container {
+    @apply flex justify-center items-center p-2;
+    width: var(--grid-size);
+}
+
+  .game-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    width: var(--grid-size);
+    height: var(--grid-size);
+    border: 2px solid #000;
+    gap: 1px;
+    background: #000;
+  }
+
+  /* Grid Cells */
+  .cell {
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #000;
+    box-sizing: border-box;
+    border: 1px solid #000;
+    user-select: none;
+  }
+
+  .cell span {
+    @apply z-10;
+    visibility: visible;
+  }
+
+  .cell::before {
+    content: '';
+    @apply absolute inset-0 bg-transparent transition-all duration-200;
+    border-radius: 2px;
+    z-index: -1;
+  }
+
+  .cell:not(.blackout):hover::before {
+    @apply bg-blue-50;
+  }
+
+  .cell:active::before {
+    @apply bg-blue-100;
+  }
+
+  .cell.blackout {
+    background: #000;
+    border-right: 1px solid #000;
+    border-bottom: 1px solid #000;
+  }
+
+  .cell.blackout span {
+    visibility: hidden;
+  }
+
+  .cell.peek.hint-blackout {
+    background: #111;
+    border-right: 1px solid #000;
+    border-bottom: 1px solid #000;
+  }
+
+  .cell.peek.hint-blackout span {
+    visibility: hidden;
+  }
+
+  .cell:not(.blackout):hover {
+    background-color: #f0f7ff;
+  }
+
+  .cell:not(.blackout):active {
+    background-color: #e6f0ff;
+  }
+
+  /* Controls Section */
+  .controls-section {
+    @apply flex flex-wrap gap-2 justify-center mt-2 w-full;
+  }
+
+  /* Buttons */
+.btn {
+  @apply px-3 py-1.5 rounded-md font-medium inline-flex items-center justify-center gap-1 text-sm;
+  min-width: 80px;
+  font-family: 'Playfair Display', serif;
+  letter-spacing: 0.02em;
+  border: none; /* Explicitly remove border */
+  cursor: pointer;
+}
+
+.btn:active {
+  @apply transform scale-95;
+}
+
+.btn.btn-primary {
+  background: linear-gradient(145deg, #0079D3, #0052cc);  /* Use actual colors instead of variables */
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.1); /* Optional: helps with legibility */
+}
+
+.btn.btn-secondary {
+  background: linear-gradient(145deg, #1a1a1b, #2a2a2b);  /* Use actual colors instead of variables */
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0,0,0,0.1); /* Optional: helps with legibility */
+}
+
+.btn i {
+  @apply text-sm;
+  color: #ffffff;
+}
+
+.btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+  /* Clues Section */
+  .clues-section {
+    @apply bg-gray-50 p-1 rounded-lg overflow-y-auto;  /* Reduced padding */
+    height: var(--grid-size);
+    max-height: var(--grid-size);
+    border: 1px solid #000;
+}
+
+  .clues-title {
+    @apply text-base font-bold mb-2 pb-1;
+    font-family: 'Playfair Display', serif;
+    border-bottom: 1px solid #000;
+  }
+
+  .clues-list {
+    @apply space-y-1;
+  }
+
+  .clue-item {
+    @apply p-2 bg-white rounded-md text-sm transition-all;
+    border: 1px solid #000;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .clue-item:hover {
+    border-color: var(--primary-color);
+    @apply shadow-sm;
+  }
+
+  .clue-item.solved {
+    @apply font-medium;
+    color: var(--success-color);
+    border-color: var(--success-color);
+    background: linear-gradient(to right, #ffffff, #f0fff4);
+  }
+
+  /* Messages */
+  .message {
+    @apply text-center p-2 rounded-md mt-2 hidden w-full text-sm;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .message.success {
+    @apply block bg-green-100 text-[var(--success-color)] border border-green-200;
+  }
+
+  .message.error {
+    @apply block bg-red-100 text-[var(--error-color)] border border-red-200;
+  }
+}
