@@ -1,40 +1,82 @@
 /* components.css */
 @layer components {
   /* Welcome Screen */
+  /* Welcome Overlay Adjustments */
   .welcome-overlay {
     @apply fixed inset-0 flex items-center justify-center z-[1000] p-5 overflow-y-auto;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-  }
+    background: linear-gradient(135deg, #005A8D, #0079D3);
+}
 
-  .welcome-card {
-    @apply bg-white/95 backdrop-blur rounded-2xl p-6 md:p-10 max-w-[800px] w-[90%] text-center shadow-xl;
-  }
+.welcome-card {
+    @apply bg-white/90 backdrop-blur-xl rounded-2xl p-6 md:p-10 max-w-[800px] w-[90%] text-center shadow-2xl;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.8s ease-out;
+}
 
-  .feature-box {
-    @apply bg-gray-50 p-6 rounded-xl transition-transform hover:-translate-y-1;
-  }
+.feature-box {
+    @apply bg-gray-50 p-6 rounded-xl transition-transform hover:-translate-y-1 hover:shadow-md;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
 
-  .feature-box i {
+.feature-box i {
     @apply text-4xl text-[#0079D3] mb-4 block;
-  }
+    transition: color 0.3s ease;
+}
 
-  /* Tutorial Section */
-  .tutorial-overlay {
+.feature-box:hover i {
+    color: #005A8D;
+}
+
+/* Tutorial Section */
+.tutorial-overlay {
     @apply fixed inset-0 flex items-center justify-center z-[1001] p-5 overflow-y-auto;
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
-  }
+    background: linear-gradient(135deg, #005A8D, #0079D3);
+}
 
-  .tutorial-card {
-    @apply bg-white/95 backdrop-blur rounded-2xl p-10 max-w-[600px] w-[90%] text-center shadow-xl;
-  }
+.tutorial-card {
+    @apply bg-white/90 backdrop-blur-xl rounded-2xl p-10 max-w-[600px] w-[90%] text-center shadow-2xl;
+    animation: slideIn 0.6s ease-out;
+}
 
-  .tutorial-step {
+.tutorial-step {
     @apply flex gap-5 mb-6 items-start text-left;
-  }
+}
 
-  .step-number {
-    @apply w-10 h-10 bg-blue-100 text-[var(--primary-color)] rounded-full flex items-center justify-center font-bold flex-shrink-0;
-  }
+.step-number {
+    @apply w-10 h-10 bg-blue-200 text-[#005A8D] rounded-full flex items-center justify-center font-bold flex-shrink-0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s ease;
+}
+
+.step-number:hover {
+    background: #0079D3;
+    color: #fff;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
 
   /* Game Container */
   .game-container {

@@ -1,4 +1,3 @@
-/* variables.css */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 
 :root {
@@ -15,31 +14,31 @@
   --color-error: #dc3545;
 
   /* Dimensions */
-  --grid-size: min(calc(100vw - 40px), 240px);
-  --cell-size: calc(var(--grid-size) / 7);
-  
+  --grid-size: min(calc(100vw - 40px), 200px); /* Reduced grid size for smaller containers */
+  --cell-size: calc(var(--grid-size) / 8); /* Adjusted for better fit within small screens */
+
   /* Borders */
-  --border-grid: 2px solid #000000;
-  --border-cell: 1px solid rgba(0, 0, 0, 0.3);
+  --border-grid: 1.5px solid #000000; /* Slightly reduced border width */
+  --border-cell: 1px solid rgba(0, 0, 0, 0.2);
 
   /* Typography */
-  --font-size-xs: 0.75rem;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
+  --font-size-xs: 0.7rem; /* Slightly smaller for compact display */
+  --font-size-sm: 0.8rem;
+  --font-size-base: 0.9rem; /* Reduced for better fitting text */
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.1rem;
 
   /* Spacing */
-  --spacing-xs: 0.25rem;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
+  --spacing-xs: 0.2rem; /* Adjusted spacing for tighter layouts */
+  --spacing-sm: 0.4rem;
+  --spacing-md: 0.8rem;
+  --spacing-lg: 1.2rem;
 }
 
 /* Base Styles */
 @layer base {
   body {
-    @apply m-0 p-2 min-h-screen bg-[#f0f2f5] font-sans;
+    @apply m-0 p-2 min-h-screen bg-[var(--color-background)] font-sans;
     line-height: 1.4;
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
