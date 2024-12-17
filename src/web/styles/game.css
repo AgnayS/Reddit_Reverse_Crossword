@@ -1,72 +1,87 @@
+:root {
+  --grid-size: 280px;
+}
+
 @layer components {
-    /* Clues Section (50%) */
-    .clues-section {
-      @apply relative bg-white rounded-xl shadow-xl p-6 flex flex-col gap-4 w-1/2;
-    }
-  
-    .clues-title {
-      @apply text-lg font-bold text-blue-600 border-b border-gray-300 pb-2;
-    }
-  
-    .clues-list {
-      @apply flex flex-col gap-3 flex-1;
-    }
-  
-    .clue-item {
-      @apply bg-gray-50 border border-gray-200 rounded-md p-3 text-sm text-gray-700 hover:shadow-sm transition-all;
-    }
-  
-    .timer-overlay {
-      @apply absolute top-2 right-2 bg-blue-600 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg;
-    }
-  
-    /* Grid Section (50%) */
-    .grid-section {
-      @apply w-1/2 flex flex-col items-center gap-4;
-    }
-  
-    .grid-container {
-      @apply relative flex justify-center;
-    }
-  
-    .game-grid {
-      @apply grid grid-cols-7 gap-[1px] border border-gray-300 rounded-lg bg-gray-300;
-      width: var(--grid-size);
-      height: var(--grid-size);
-    }
-  
-    .cell {
-      @apply w-10 h-10 font-semibold text-gray-800 bg-white flex items-center justify-center transition-all border border-gray-200 rounded-sm;
-    }
-  
-    .cell.blackout {
-      background: #000;
-      border-color: #000;
-    }
-  
-    .cell.blackout span {
-      visibility: hidden;
-    }
-  
-    .cell.peek.hint-blackout {
-      background: #111;
-      border-color: #000;
-    }
-  
-    .cell.peek.hint-blackout span {
-      visibility: hidden;
-    }
-  
-    .cell:not(.blackout):hover {
-      @apply bg-blue-50;
-    }
-  
-    .cell:not(.blackout):active {
-      @apply bg-blue-100;
-    }
-  
-    .controls-section {
-      @apply flex gap-2;
-    }
+  .clues-section {
+    @apply relative bg-white rounded-xl shadow-xl p-6 flex flex-col gap-4 w-1/2;
   }
-  
+
+  .clues-title {
+    @apply text-lg font-bold text-blue-600 border-b border-gray-300 pb-2;
+  }
+
+  .clues-list {
+    @apply flex flex-col gap-3 flex-1;
+  }
+
+  .clue-item {
+    @apply bg-gray-50 border border-gray-200 rounded-md p-3 text-sm text-gray-700 hover:shadow-sm transition-all;
+  }
+
+  .timer-overlay {
+    @apply absolute top-2 right-2 bg-blue-600 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg;
+  }
+
+  .grid-section {
+    @apply w-1/2 flex flex-col items-center gap-4;
+  }
+
+  .grid-container {
+    @apply relative flex justify-center items-center w-full;
+    max-width: 400px;
+  }
+
+  .game-grid {
+    @apply grid grid-cols-7 bg-gray-300;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border: 4px solid #4A5568;
+    border-radius: 12px;
+  }
+
+  .cell {
+    @apply flex items-center justify-center font-semibold text-gray-800 bg-white border border-gray-200;
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    border-radius: 8px; /* Rounded corners */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    cursor: pointer;
+  }
+
+  .cell:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+  }
+
+  .cell.blackout {
+    /* Animate blackout transition */
+    animation: blackoutFade 0.3s forwards ease-in-out;
+    color: #fff;
+    border-color: #000;
+  }
+
+  .cell.peek.hint-blackout {
+    animation: peekFlash 0.4s ease-in-out alternate 2;
+  }
+
+  .cell.blackout span {
+    visibility: hidden;
+  }
+
+  .cell.peek.hint-blackout span {
+    visibility: hidden;
+  }
+
+  .cell:not(.blackout):hover {
+    @apply bg-blue-50;
+  }
+
+  .cell:not(.blackout):active {
+    @apply bg-blue-100;
+  }
+
+  .controls-section {
+    @apply flex gap-2;
+  }
+}

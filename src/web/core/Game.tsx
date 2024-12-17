@@ -3,7 +3,7 @@ import { PuzzleGenerator } from '../utils/PuzzleGenerator.tsx';
 import type { Theme, WordInfo } from '../utils/types.tsx';
 
 const GRID_WIDTH = 7;
-const GRID_HEIGHT = 7;
+const GRID_HEIGHT = 8;
 
 interface Score {
     username: string;
@@ -152,10 +152,20 @@ export class Game {
 
     private stopTimer(): void {
         if (this.timerInterval !== null) {
-            window.clearInterval(this.timerInterval);
-            this.timerInterval = null;
+          window.clearInterval(this.timerInterval);
+          this.timerInterval = null;
         }
-    }
+      
+        if (this.startTime !== null) {
+          const elapsedTime = Math.floor((Date.now() - this.startTime) / 1000); // in seconds
+      
+          // Post GAME_COMPLETE message to parent
+          window.parent.postMessage(
+            { type: 'GAME_COMPLETE', payload: { time: elapsedTime } },
+            '*'
+          );
+        }
+      }
 
     private generatePuzzle(): void {
         if (!this.theme) return;
@@ -335,28 +345,29 @@ export class Game {
     private showSolutionFeedback(isCorrect: boolean): void {
         const messageContainer = document.querySelector('.message-container') as HTMLDivElement;
         const message = document.getElementById("message");
-
+      
         if (!messageContainer || !message) return;
-
+      
         messageContainer.classList.remove('hidden');
         message.className = `message ${isCorrect ? 'success' : 'error'}`;
         message.classList.remove('hidden');
         message.textContent = isCorrect
             ? "Congratulations! That's correct!"
             : "Not quite right. Keep trying!";
-
+      
         if (isCorrect) {
-            this.stopTimer();
-            if (this.startTime !== null) {
-                const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
-                const score = this.calculateScore(elapsed, 0);
-                const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
-                const seconds = (elapsed % 60).toString().padStart(2, '0');
-                const timeStr = `${minutes}:${seconds}`;
-                this.saveScore(timeStr, score);
-            }
+          this.stopTimer();
+          if (this.startTime !== null) {
+            const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+            // Send elapsed time to parent Devvit app
+            window.parent.postMessage({
+              type: 'GAME_COMPLETE',
+              payload: { time: elapsed },
+            }, '*');
+          }
         }
-    }
+      }
+      
 
     private saveScore(time: string, score: number): void {
         const existingScores = JSON.parse(localStorage.getItem('darkword_scores') || '[]');

@@ -7,3 +7,8 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Add the global font-family here */
+body, html {
+  font-family: "Comic Sans MS", cursive, sans-serif;
+}
