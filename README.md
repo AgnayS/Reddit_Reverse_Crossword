@@ -1,81 +1,31 @@
-# DarkWord 🎯
+DarkWord 🎯🧩✨
 
-A unique reverse crossword puzzle game built for Reddit! Unlike traditional crosswords, in DarkWord you see ALL the letters and need to black out the extras to reveal the hidden crossword underneath.
+DarkWord is a reverse crossword puzzle game built to run as a Devvit application on Reddit. Instead of filling in letters, you start with a grid full of letters and must “black out” the extra ones to uncover the hidden words related to a daily theme. It’s a crossword with a twist—no clues on where the words start or end, just cryptic hints and your puzzle-solving wits!
+How to Play 🎮🕹️
 
-## 🎮 How to Play
+    Start a New Game: Select "Create New DarkWord Game" from your subreddit’s menu. A new interactive post (your puzzle) will appear.
+    Analyze the Grid: Every cell is filled with a letter. Some form valid words (related to the daily theme) and others are distractions.
+    Check the Clues: Use the cryptic clues to figure out which letters belong to the hidden words. The words form a crossword pattern, but their locations are not given outright.
+    Black Out Cells: Click on cells to “black them out.” You want to remove all the distracting letters so that only the correct words remain.
+    Peek Feature 🔍: Feeling stuck? Use the Peek button (up to 3 times per game) to highlight cells that should be eliminated—giving you a nudge in the right direction!
+    Completion 🎉: Once you’ve correctly isolated all the words, the game ends. Your completion time is recorded and displayed on a leaderboard for everyone in the community to see.
 
-1. Each puzzle has a daily theme (Ocean Life, Space Exploration, etc.)
-2. The grid is filled with letters - some are part of real words, others are distractors
-3. Read the cryptic clues to figure out what words are hidden
-4. Click cells to black them out
-5. Your goal is to black out all distractor letters, leaving only the real crossword visible!
+Features 🌟
 
-Example:
-```
-Before:          After blacking out:
-S T A R S        S T A R ■
-P E A L E        P E A L ■
-I R O N Y   →    I R O N ■
-T E N T S        T E N T ■
-E D G E S        ■ ■ ■ ■ ■
-```
+    Daily Themes 🍀: Enjoy a fresh, themed puzzle each day, from ocean life to space exploration and beyond!
+    Cryptic Clues 🧠: Clues provide hints without revealing word positions. Perfect for word puzzle enthusiasts.
+    Peek System 👀: Up to three peeks help you when you’re stuck, highlighting which letters need removal.
+    Leaderboard & Scoring 🏆: Your completion times are stored and ranked, inspiring friendly competition within the community.
+    Reddit & Devvit Integration 💬: Start new games seamlessly from within your subreddit. Interactive posts keep everything accessible and fun.
+    Redis Backend ⚡: Leaderboard scores and user times are stored in Redis for fast, scalable data access.
+    Real-Time Updates 🚀: Fetch puzzles, clues, and daily themes dynamically. Engage your community with fresh content and improve their experience over time.
 
-## 🚀 Features
+Getting Started 🚀
 
-- 🎨 Daily themes with themed word sets
-- 🤔 Cryptic clues that don't give away word positions
-- 👀 Peek feature (3 uses per game) to help when stuck
-- 🎯 Hover over clues to see related cells
-- 🔄 Random letter filling for non-word spaces
-- ✨ Score tracking and progress saving
+    Install the App on Your Subreddit: Follow Devvit’s instructions to install DarkWord.
+    Create a Game Post: From your subreddit’s menu, pick "Create New DarkWord Game" to generate a new puzzle post.
+    Play & Compete 🎉: Solve puzzles, race against the clock, and climb the leaderboard as you outshine other community members.
 
-## 🛠️ Technical Details
+Contributing 🤝🧑‍💻
 
-Built using:
-- Vanilla JavaScript for game logic
-- CSS for styling
-- Reddit's Devvit platform for deployment
-
-## 🏃‍♂️ Running Locally
-
-1. Clone this repository
-2. Open VSCode
-3. Install the "Live Server" extension
-4. Right-click on `webroot/index.html` and select "Open with Live Server"
-5. The game should open in your default browser!
-
-Note: Direct file opening won't work due to module imports - you need to use a local server.
-
-## 📁 Project Structure
-```
-project/
-├── src/              # Devvit app files
-│   ├── main.tsx
-│   └── createPost.tsx
-└── webroot/          # Game files
-    ├── index.html    # Main game page
-    ├── style.css     # Styles
-    └── js/
-        ├── generator.js  # Puzzle generation
-        ├── themes.js     # Theme data
-        └── game.js       # Game logic
-```
-
-## 🎯 Game Mechanics
-
-1. **Theme Selection**: Each day has a unique theme with related words
-2. **Puzzle Generation**: 
-   - Words are placed in crossword pattern
-   - Empty spaces are filled with random letters
-3. **Clue System**:
-   - Each word has a cryptic clue
-   - Clues are randomized to hide word positions
-4. **Peek System**:
-   - Players get 3 peeks per game
-   - Each peek reveals 3 random cells
-   - Yellow highlight = should be blacked out
-   - Green highlight = part of a real word
-
-## 🤝 Contributing
-
-Feel free to submit issues and enhancement requests!
+Want to make DarkWord even better? Contributions, suggestions, and feedback are welcome! Propose new puzzle themes, refine the clues, or improve puzzle generation. Every idea helps the game evolve and become more engaging for everyone!
