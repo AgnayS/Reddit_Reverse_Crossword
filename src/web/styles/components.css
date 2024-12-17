@@ -80,20 +80,36 @@
 
   /* Game Container */
   .game-container {
-    @apply max-w-[1000px] mx-auto bg-white rounded-lg shadow-md p-2;
-    min-height: calc(100vh - 1rem);
-  }
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: start;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    height: 100vh; /* Fit full Reddit post */
+    box-sizing: border-box;
+}
 
   /* Game Timer */
   .game-timer {
-    @apply font-mono text-xs font-bold px-1.5 py-0.5 rounded-md inline-flex items-center gap-1 bg-white;
-    border: 1px solid #000;
-    color: var(--primary-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0079d3;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1rem;
 }
   
-  .game-timer i {
-    @apply text-[var(--primary-color)] text-xs;
-  }
+  
 
   /* Game Layout - Clues left, Grid right */
   .game-layout {
@@ -102,19 +118,19 @@
 }
 
 .grid-container {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   justify-content: center;
-  align-items: center;
-  width: var(--grid-size);
-  margin-top: -4px;  /* Pull grid up slightly */
 }
 
   /* Grid Container */
-  .grid-container {
-    @apply flex justify-center items-center p-2;
-    width: var(--grid-size);
-}
-
+  
   .game-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -127,20 +143,19 @@
 
   /* Grid Cells */
   .cell {
-    width: 100%;
-    height: 100%;
-    background: #fff;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-weight: 600;
+    color: #334155;
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    text-align: center;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: Arial, sans-serif;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #000;
-    box-sizing: border-box;
-    border: 1px solid #000;
-    user-select: none;
-  }
+    transition: all 0.2s ease;
+}
 
   .cell span {
     @apply z-10;
@@ -192,18 +207,23 @@
 
   /* Controls Section */
   .controls-section {
-    @apply flex flex-wrap gap-2 justify-center mt-2 w-full;
-  }
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
 
   /* Buttons */
-.btn {
-  @apply px-3 py-1.5 rounded-md font-medium inline-flex items-center justify-center gap-1 text-sm;
-  min-width: 80px;
-  font-family: 'Playfair Display', serif;
-  letter-spacing: 0.02em;
-  border: none; /* Explicitly remove border */
-  cursor: pointer;
+  .btn {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #ffffff;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
 }
+
 
 .btn:active {
   @apply transform scale-95;
@@ -232,32 +252,44 @@
 
   /* Clues Section */
   .clues-section {
-    @apply bg-gray-50 p-1 rounded-lg overflow-y-auto;  /* Reduced padding */
-    height: var(--grid-size);
-    max-height: var(--grid-size);
-    border: 1px solid #000;
+    background: linear-gradient(to bottom, #e0f2fe, #f8fafc);
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 1rem;
+    height: fit-content;
+    font-size: 0.9rem;
 }
 
-  .clues-title {
-    @apply text-base font-bold mb-2 pb-1;
-    font-family: 'Playfair Display', serif;
-    border-bottom: 1px solid #000;
-  }
+.clues-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #0079d3;
+  border-bottom: 1px solid #cbd5e1;
+  padding-bottom: 0.5rem;
+}
 
-  .clues-list {
-    @apply space-y-1;
-  }
+.clues-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 
-  .clue-item {
-    @apply p-2 bg-white rounded-md text-sm transition-all;
-    border: 1px solid #000;
-    font-family: 'Playfair Display', serif;
-  }
+.clue-item {
+  background: #ffffff;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
 
-  .clue-item:hover {
-    border-color: var(--primary-color);
-    @apply shadow-sm;
-  }
+.clue-item:hover {
+  border-color: #0079d3;
+  background: #f0f7ff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
   .clue-item.solved {
     @apply font-medium;
@@ -268,15 +300,20 @@
 
   /* Messages */
   .message {
-    @apply text-center p-2 rounded-md mt-2 hidden w-full text-sm;
-    font-family: 'Playfair Display', serif;
-  }
+    text-align: center;
+    font-size: 0.9rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    margin-top: 1rem;
+}
 
   .message.success {
-    @apply block bg-green-100 text-[var(--success-color)] border border-green-200;
-  }
+    background-color: #e6fffa;
+    color: #2f855a;
+}
 
-  .message.error {
-    @apply block bg-red-100 text-[var(--error-color)] border border-red-200;
-  }
+.message.error {
+    background-color: #fff5f5;
+    color: #c53030;
+}
 }
