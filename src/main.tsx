@@ -102,12 +102,12 @@ Devvit.addCustomPostType({
                 borderColor="#000000"
                 width="60%"
               >
-                <text size="xxlarge" weight="bold" color="#000000">DarkWord</text>
-                <text size="large" color="#000000">A Reverse Crossword Puzzle</text>
+                <text size="xxlarge" weight="bold" color="#000000">¡DarkWord!</text>
+                <text size="large" color="#000000">Black out the noise.</text>
                 <spacer size="medium" />
                 <hstack gap="small" alignment="middle center">
-                  <button appearance="primary" onPress={onLaunchClick}>🚀 Start Game</button>
-                  <button appearance="secondary" onPress={showLeaderboard}>🏆 Leaderboard</button>
+                  <button appearance="primary" onPress={onLaunchClick}>🚀 Start Game 🚀</button>
+                  <button appearance="secondary" onPress={showLeaderboard}>🏆 Leaderboard 🏆</button>
                 </hstack>
               </vstack>
             </zstack>
