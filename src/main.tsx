@@ -9,6 +9,7 @@ Devvit.configure({
   http: true,
   redis: true,
   realtime: true,
+  realtime: true,
 });
 
 type LeaderboardEntry = {
@@ -105,12 +106,29 @@ Devvit.addCustomPostType({
     return (
       <blocks height="tall">
         <vstack grow padding="small">
+          {/* Show Loader */}
+          {isLoading && <LoadingOverlay />}
+
+          {/* Error Message */}
+          {errorMessage && (
+            <text
+              size="medium"
+              color="red"
+              alignment="middle center"
+              weight="bold"
+            >
+              {errorMessage}
+            </text>
+          )}
+
+          {/* Conditional Render: Show Start Screen or WebView */}
           {!webviewVisible ? (
             <zstack grow alignment="middle center">
               <image url="crossword.jpg" imageWidth={700} imageHeight={500} resizeMode="cover" />
               <vstack
                 alignment="middle center"
                 padding="medium"
+                backgroundColor="rgba(255,255,255,0.8)"
                 backgroundColor="rgba(255,255,255,0.8)"
                 cornerRadius="large"
                 borderColor="#000000"
