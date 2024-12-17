@@ -6,7 +6,6 @@ type LeaderboardProps = {
 };
 
 export const Leaderboard = ({ leaderboard, onBack }: LeaderboardProps) => {
-  console.log("Rendering leaderboard with entries:", leaderboard);
 
   return (
     <blocks height="tall">

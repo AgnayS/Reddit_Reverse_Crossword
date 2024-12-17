@@ -48,7 +48,6 @@ export class Game {
     }
 
     public initializeWithData(payload: { theme: string; words: string[]; clues: Record<string, string> }): void {
-        console.log("Game received initialization data:", payload);
 
         this.theme = {
             name: payload.theme,
@@ -57,9 +56,7 @@ export class Game {
         };
 
         this.generatePuzzle();
-        console.log("Puzzle generated");
         this.renderGame();
-        console.log("Game rendered");
         this.updatePeekButton();
 
         this.startTimer();

@@ -35,11 +35,6 @@ export class PuzzleGenerator {
     // Convert puzzle's internal chars to a 2D grid (with spaces where empty)
     const partialGrid = this.convertGrid(bestPuzzle, config);
 
-    // **Log the crossword before filling empty spaces**
-    console.log("Crossword before filling empty spaces:");
-    for (const row of partialGrid) {
-      console.log(row.map(ch => ch === ' ' ? '.' : ch).join(''));
-    }
 
     // Now fill the empty spaces with random letters
     this.fillEmptySpaces(partialGrid);

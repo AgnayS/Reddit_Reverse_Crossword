@@ -27,17 +27,14 @@ Devvit.addCustomPostType({
 
     // Function to fetch and return the username
     const fetchUsername = async (): Promise<string> => {
-      console.log("Attempting to fetch username...");
       if (!context.userId) {
         console.warn("No user ID found, defaulting to Guest.");
         return "Guest";
       } else {
         const user = await context.reddit.getUserById(context.userId);
         if (user?.username) {
-          console.log("Fetched username successfully:", user.username);
           return user.username;
         } else {
-          console.warn("No username found for userId:", context.userId);
           return "Guest";
         }
       }
@@ -45,18 +42,14 @@ Devvit.addCustomPostType({
 
     // Fetch leaderboard with logging
     const showLeaderboard = async () => {
-      console.log("Fetching leaderboard data...");
       const scores = await getLeaderboard(context.redis);
-      console.log("Fetched leaderboard data:", scores);
       setLeaderboard(scores);
       setLeaderboardVisible(true);
     };
 
     // Launch game
     const onLaunchClick = async () => {
-      console.log("Fetching words and clues...");
       const wordsData = await fetchWordsAndClues();
-      console.log("Fetched words data:", wordsData);
 
       const currentUsername = await fetchUsername();
       setUsername(currentUsername);
@@ -70,35 +63,28 @@ Devvit.addCustomPostType({
           username: currentUsername, // Pass the username immediately
         },
       });
-      console.log("Sent game initialization data to webview.");
       setWebviewVisible(true);
     };
 
 
     // Handle game completion
     const onGameComplete = async (time: number) => {
-      console.log(`Game completed! Received time: ${time} seconds.`);
       
       const currentUsername = await fetchUsername(); // Fetch username fresh
-      console.log(`Using username: ${currentUsername} to save time.`);
+
 
       // Save time
-      console.log(`Saving time for ${currentUsername}: ${time} seconds.`);
+  
       await saveUserTime(context.redis, currentUsername, time);
-      console.log("Time saved successfully.");
 
-      // Fetch updated leaderboard
-      console.log("Fetching updated leaderboard...");
       const updatedLeaderboard = await getLeaderboard(context.redis);
-      console.log("Updated leaderboard data:", updatedLeaderboard);
       setLeaderboard(updatedLeaderboard);
     };
 
 
-
+    
     // Conditional render
     if (leaderboardVisible) {
-      console.log("Rendering leaderboard...");
       return <Leaderboard leaderboard={leaderboard} onBack={() => setLeaderboardVisible(false)} />;
     }
 
@@ -133,7 +119,6 @@ Devvit.addCustomPostType({
                 grow
                 onMessage={(event) => {
                   const message = event as { type?: string; payload?: { time?: number } };
-                  console.log("Message received from webview:", message);
                   if (message?.type === 'GAME_COMPLETE' && message.payload?.time) {
                     onGameComplete(message.payload.time);
                   }
