@@ -7,7 +7,7 @@ interface WordCluesResponse {
 }
 
 // Mock data for development and testing
-const MOCK_DATA: WordCluesResponse = {
+/* const MOCK_DATA: WordCluesResponse = {
     theme: "nature",
     words: [
         "FOREST",
@@ -43,11 +43,11 @@ const MOCK_DATA: WordCluesResponse = {
         "FLIGHT": "Act of flying",
         "RAVINE": "Deep, narrow gorge with steep sides"
     }
-};
+}; */
 
 export async function fetchWordsAndClues(): Promise<WordCluesResponse> {
     // TODO: Once domain is allowlisted, uncomment the real fetch code
-    /* try {
+    try {
         const response = await fetch("https://vercel-darkword-backend.vercel.app/api/handler");
         if (!response.ok) {
             throw new Error(`Failed to fetch: ${response.statusText}`);
@@ -64,8 +64,8 @@ export async function fetchWordsAndClues(): Promise<WordCluesResponse> {
     } catch (error) {
         console.error("Error fetching words and clues:", error);
         throw error;
-    } */
+    }
 
     // Return mock data for testing
-    return Promise.resolve(MOCK_DATA);
+    // return Promise.resolve(MOCK_DATA);
 }
