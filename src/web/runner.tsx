@@ -1,9 +1,8 @@
+// FILE: web/runner.tsx
 import { Game } from './core/Game.tsx';
 
 class GameManager {
     private game: Game | null = null;
-    private timerInterval: number | null = null;
-    private secondsElapsed = 0;
 
     constructor() {
         document.addEventListener('DOMContentLoaded', () => this.init());
@@ -22,15 +21,9 @@ class GameManager {
     private setupMessageHandlers(): void {
         // Listen for messages from Devvit
         window.addEventListener('message', (event) => {
-            console.log("Received event:", event);
-            
             if (event.data.type === 'devvit-message') {
                 const devvitData = event.data.data;
-                console.log("Devvit data:", devvitData);
-
-                // Access nested message object
                 if (devvitData && devvitData.message && devvitData.message.message === 'INITIALIZE_GAME') {
-                    console.log("Game initialization payload:", devvitData.message.payload);
                     if (!this.game) {
                         this.game = new Game();
                     }
@@ -72,28 +65,8 @@ class GameManager {
         welcomeOverlay.classList.add('hidden');
         tutorialOverlay.classList.add('hidden');
         gameContent.classList.remove('hidden');
-        this.startTimer();
-    }
-
-    private startTimer(): void {
-        const timerElement = document.getElementById('timer');
-        if (!timerElement) return;
-        if (this.timerInterval !== null) clearInterval(this.timerInterval);
-        
-        this.secondsElapsed = 0;
-        this.updateTimerDisplay(timerElement);
-        this.timerInterval = window.setInterval(() => {
-            this.secondsElapsed++;
-            this.updateTimerDisplay(timerElement);
-        }, 1000);
-    }
-
-    private updateTimerDisplay(timerElement: HTMLElement): void {
-        const minutes = Math.floor(this.secondsElapsed / 60).toString().padStart(2, '0');
-        const seconds = (this.secondsElapsed % 60).toString().padStart(2, '0');
-        timerElement.textContent = `${minutes}:${seconds}`;
+        // No timer starts here. The timer is only started inside Game class once data is ready.
     }
 }
 
-console.log('Initializing Game Manager...');
 new GameManager();

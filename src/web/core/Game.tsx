@@ -1,6 +1,6 @@
+// FILE: web/core/Game.tsx
 import { PuzzleGenerator } from '../utils/PuzzleGenerator.tsx';
 import type { Theme, WordInfo } from '../utils/types.tsx';
-import { fetchWordsAndClues } from '../utils/WordFetcher.tsx';
 
 const GRID_WIDTH = 7;
 const GRID_HEIGHT = 7;
@@ -39,76 +39,69 @@ export class Game {
         };
         this.blackedOutCells = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(false));
 
+        // Removed startTimer() calls from constructor/init methods. We'll only start after data is ready.
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.init());
+            document.addEventListener('DOMContentLoaded', () => this.setupUIElements());
         } else {
-            this.init();
-        }
-    }
-
-    private async init(): Promise<void> {
-        try {
-            //await this.setupTheme();
             this.setupUIElements();
-            this.generatePuzzle();
-            this.renderGame();
-            this.updatePeekButton();
-            this.startTimer(); 
-        } catch (error) {
-            console.error("Error initializing game:", error);
-            this.showError("Failed to load the game. Please try refreshing the page.");
         }
     }
 
     public initializeWithData(payload: { theme: string; words: string[]; clues: Record<string, string> }): void {
         console.log("Game received initialization data:", payload);
-        
+
         this.theme = {
             name: payload.theme,
             words: payload.words,
             clues: payload.clues
         };
-        
-        console.log("Theme set:", this.theme);
+
         this.generatePuzzle();
         console.log("Puzzle generated");
         this.renderGame();
         console.log("Game rendered");
         this.updatePeekButton();
+
+        // Start the timer now that the puzzle is ready.
         this.startTimer();
     }
 
-    private async setupTheme(): Promise<void> {
-        const response = await fetchWordsAndClues();
-        this.theme = {
-            name: response.theme,
-            words: response.words,
-            clues: response.clues
-        };
-    }
+    private setupUIElements(): void {
+        const grid = document.getElementById("grid");
+        const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement | null;
+        const resetBtn = document.getElementById("reset-btn") as HTMLButtonElement | null;
+        const peekBtn = document.getElementById("peek-btn") as HTMLButtonElement | null;
 
-    private saveScore(time: string, score: number): void {
-        const existingScores = JSON.parse(localStorage.getItem('darkword_scores') || '[]');
-        const newScore = {
-            username: this.currentUser.username,
-            time,
-            score,
-            date: new Date().toISOString()
-        };
-        existingScores.push(newScore);
-        localStorage.setItem('darkword_scores', JSON.stringify(existingScores));
-    }
+        if (!grid || !submitBtn || !resetBtn || !peekBtn) {
+            console.error("Required DOM elements not found");
+            return;
+        }
 
-    private calculateScore(time: number, mistakes: number): number {
-        const baseScore = 100;
-        const timeMultiplier = Math.max(0, 1 - (time / 300)); // 5 minutes max
-        const mistakePenalty = mistakes * 5;
-        return Math.max(0, Math.round(baseScore * timeMultiplier - mistakePenalty));
+        const newGrid = grid.cloneNode(true);
+        grid.parentNode?.replaceChild(newGrid, grid);
+
+        (newGrid as HTMLDivElement).addEventListener("click", (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            const cellElement = target.closest(".cell");
+
+            if (!cellElement) return;
+            e.stopPropagation();
+
+            const row = parseInt(cellElement.getAttribute("data-row") || "0", 10);
+            const col = parseInt(cellElement.getAttribute("data-col") || "0", 10);
+
+            this.toggleCell(cellElement as HTMLElement, row, col);
+            this.clearMessage();
+        });
+
+        submitBtn.addEventListener("click", () => this.checkSolution());
+        resetBtn.addEventListener("click", () => this.resetGrid());
+        peekBtn.addEventListener("click", () => this.handlePeek());
     }
 
     private startTimer(): void {
         this.startTime = Date.now();
-        
+
         if (this.timerInterval !== null) {
             window.clearInterval(this.timerInterval);
         }
@@ -127,7 +120,7 @@ export class Game {
         const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
         const minutes = Math.floor(elapsed / 60);
         const seconds = elapsed % 60;
-        
+
         timerElement.textContent = 
             `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     }
@@ -137,70 +130,6 @@ export class Game {
             window.clearInterval(this.timerInterval);
             this.timerInterval = null;
         }
-    }
-
-    private setupUIElements(): void {
-        const grid = document.getElementById("grid");
-        const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement | null;
-        const resetBtn = document.getElementById("reset-btn") as HTMLButtonElement | null;
-        const peekBtn = document.getElementById("peek-btn") as HTMLButtonElement | null;
-
-        if (!grid || !submitBtn || !resetBtn || !peekBtn) {
-            console.error("Required DOM elements not found");
-            return;
-        }
-
-        const newGrid = grid.cloneNode(true);
-    grid.parentNode?.replaceChild(newGrid, grid);
-
-    // Add the click handler to the new grid
-    newGrid.addEventListener("click", (e: MouseEvent) => {
-        const target = e.target as HTMLElement;
-        const cellElement = target.closest(".cell");
-        
-        if (!cellElement) return;
-        
-        // Prevent event bubbling
-        e.stopPropagation();
-        
-        const row = parseInt(cellElement.getAttribute("data-row") || "0", 10);
-        const col = parseInt(cellElement.getAttribute("data-col") || "0", 10);
-
-        // Add debug logging
-        console.log(`Click on cell ${row},${col}`);
-        console.log(`Current state before toggle:`, this.blackedOutCells[row][col]);
-        
-        this.toggleCell(cellElement as HTMLElement, row, col);
-        this.clearMessage();
-    });
-
-        submitBtn.addEventListener("click", () => this.checkSolution());
-        resetBtn.addEventListener("click", () => this.resetGrid());
-        peekBtn.addEventListener("click", () => this.handlePeek());
-    }
-
-    private renderGrid(): void {
-        const grid = document.getElementById("grid");
-        if (!grid) return;
-    
-        grid.innerHTML = '';
-        this.puzzleGrid.forEach((row, rowIndex) => {
-            row.forEach((letter, colIndex) => {
-                const cell = document.createElement("div");
-                cell.className = "cell";
-                const letterSpan = document.createElement("span");
-                letterSpan.textContent = letter;
-                letterSpan.className = "select-none";
-                cell.appendChild(letterSpan);
-                
-                cell.dataset.row = rowIndex.toString();
-                cell.dataset.col = colIndex.toString();
-                if (this.blackedOutCells[rowIndex][colIndex]) {
-                    cell.classList.add("blackout");
-                }
-                grid.appendChild(cell);
-            });
-        });
     }
 
     private generatePuzzle(): void {
@@ -236,20 +165,44 @@ export class Game {
         this.renderTheme();
     }
 
+    private renderGrid(): void {
+        const grid = document.getElementById("grid");
+        if (!grid) return;
+
+        grid.innerHTML = '';
+        this.puzzleGrid.forEach((row, rowIndex) => {
+            row.forEach((letter, colIndex) => {
+                const cell = document.createElement("div");
+                cell.className = "cell";
+                const letterSpan = document.createElement("span");
+                letterSpan.textContent = letter;
+                letterSpan.className = "select-none";
+                cell.appendChild(letterSpan);
+
+                cell.dataset.row = rowIndex.toString();
+                cell.dataset.col = colIndex.toString();
+                if (this.blackedOutCells[rowIndex][colIndex]) {
+                    cell.classList.add("blackout");
+                }
+                grid.appendChild(cell);
+            });
+        });
+    }
+
     private renderClues(): void {
         const cluesList = document.getElementById("clues-list");
         if (!cluesList || !this.theme) return;
-    
+
         cluesList.innerHTML = '';
         this.words.forEach(wordInfo => {
             const clue = this.theme?.clues[wordInfo.word];
             if (!clue) return;
-    
+
             const clueElement = document.createElement("div");
             clueElement.className = "clue-item";
             clueElement.textContent = `• ${clue}`;
             clueElement.dataset.word = wordInfo.word;
-    
+
             cluesList.appendChild(clueElement);
         });
     }
@@ -376,6 +329,25 @@ export class Game {
         }
     }
 
+    private saveScore(time: string, score: number): void {
+        const existingScores = JSON.parse(localStorage.getItem('darkword_scores') || '[]');
+        const newScore = {
+            username: this.currentUser.username,
+            time,
+            score,
+            date: new Date().toISOString()
+        };
+        existingScores.push(newScore);
+        localStorage.setItem('darkword_scores', JSON.stringify(existingScores));
+    }
+
+    private calculateScore(time: number, mistakes: number): number {
+        const baseScore = 100;
+        const timeMultiplier = Math.max(0, 1 - (time / 300)); // 5 minutes max
+        const mistakePenalty = mistakes * 5;
+        return Math.max(0, Math.round(baseScore * timeMultiplier - mistakePenalty));
+    }
+
     private resetGrid(): void {
         this.blackedOutCells = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(false));
         const cells = document.querySelectorAll(".cell");
@@ -403,5 +375,6 @@ export class Game {
             messageElement.textContent = msg;
         }
     }
+	
 
 }
