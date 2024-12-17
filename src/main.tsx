@@ -5,12 +5,16 @@ import { fetchWordsAndClues } from '../server/wordFetcher.server.ts';
 Devvit.configure({
   redditAPI: true,
   http: true,
+  redis: true,
+  realtime: true
 });
+
 
 Devvit.addCustomPostType({
   name: 'DarkWord Game',
   height: 'tall',
   render: (context) => {
+    
     const [webviewVisible, setWebviewVisible] = useState(false);
     const [username] = useState(async () => {
       const user = await context.reddit.getCurrentUser();
@@ -37,29 +41,53 @@ Devvit.addCustomPostType({
         console.error("Error fetching game data:", error);
       }
     };
+    
 
     return (
       <blocks height="tall">
         <vstack grow padding="small">
           {/* Initial welcome screen */}
-          <vstack 
-            grow={!webviewVisible} 
-            height={!webviewVisible ? '100%' : '0%'} 
-            alignment="middle center"
-          >
-            <text size="xxlarge" weight="bold">DarkWord</text>
-            <text size="medium">A Reverse Crossword Puzzle</text>
-            <spacer size="medium" />
-            <text alignment="center">
-              Find the hidden crossword by blacking out extra letters.
-              Solve the clues to help you find the real words!
-            </text>
-            <spacer size="medium" />
-            <button appearance="primary" onPress={onLaunchClick}>
-              Start Game
-            </button>
-          </vstack>
+          <zstack grow={!webviewVisible} height={!webviewVisible ? '100%' : '0%'}>
+  {/* Background Image */}
+  <image 
+    url="crossword.jpg" 
+    imageWidth={700} imageHeight={500} 
+    resizeMode="cover"
+  />
 
+  {/* Overlay Content */}
+  <vstack 
+    alignment="middle center" 
+    padding="large"
+  >
+
+  <spacer size="large" />
+    {/* Title Section */}
+    <text size="xxlarge" color="#000000" weight = "bold" alignment="middle center">
+      DarkWord
+    </text>
+    <text size="large" color="#000000" weight = "bold" alignment="middle center">
+      A Reverse Crossword Puzzle
+    </text>
+
+    <spacer size="medium" />
+
+    {/* Description */}
+    <text size="medium" alignment="middle center" color="#000000">
+      Find the hidden crossword by blacking out extra letters. Solve the clues to help you find the real words!
+    </text>
+
+    <spacer size="large" />
+
+    {/* Start Game Button */}
+    <button 
+      appearance="primary" 
+      onPress={onLaunchClick}
+    >
+      🚀 Start Game
+    </button>
+  </vstack>
+</zstack>
           {/* Game container */}
           <vstack 
             grow={webviewVisible}
